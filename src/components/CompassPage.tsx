@@ -10,15 +10,14 @@ import { isIOS } from '../utils/compass'
 
 // 场景操作指南
 const SCENE_GUIDES: Record<SceneType, string> = {
-  general: '站在房间中央，手机平放在手掌上，朝向你要测的方向',
   door: '站在入户门内侧（屋里那侧），手机竖起来朝门外方向，屏幕朝向你自己',
+  entrance: '站在入户门内侧，面朝屋内方向（你进门后面对的方向），手机指向室内',
   bed: '躺在床上正常位置，手机放在枕头旁屏幕朝上，指向床头方向',
   stove: '站在灶台前方（你平时做饭站的位置），手机朝向灶台正面',
   mingtang: '站在客厅中央或阳台上，面朝窗外方向，手机指向外面',
-  entrance: '站在入户门内侧，面朝屋内方向（你进门后面对的方向），手机指向室内',
 }
 
-// 建议测量顺序（7项，5项罗盘 + 2项户型配置）
+// 建议测量顺序
 const RECOMMENDED_ORDER: SceneType[] = ['door', 'entrance', 'bed', 'stove', 'mingtang']
 
 // 下一步建议文案
@@ -28,7 +27,6 @@ const NEXT_STEP: Record<SceneType, string> = {
   bed: '接下来测「灶台朝向」',
   stove: '接下来测「明堂朝向」',
   mingtang: '所有罗盘测量都完成了！',
-  general: '建议先选「测大门」开始测量',
 }
 
 // 场景名称映射
@@ -38,7 +36,6 @@ const SCENE_NAMES: Record<SceneType, string> = {
   bed: '床向',
   stove: '灶台',
   mingtang: '明堂',
-  general: '朝向',
 }
 
 export default function CompassPage() {
@@ -46,7 +43,7 @@ export default function CompassPage() {
   const { setMeasurement, setActiveTab } = useAppState()
 
   // 本地状态
-  const [scene, setScene] = useState<SceneType>('general')
+  const [scene, setScene] = useState<SceneType>('door')
   const [showCalibrateTip, setShowCalibrateTip] = useState(true)
   const [showPermission, setShowPermission] = useState(false)
   const [showGuide, setShowGuide] = useState(true)

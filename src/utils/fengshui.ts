@@ -1,7 +1,7 @@
 import { findDirection } from '../data/directions'
 import type { Direction } from '../data/directions'
 
-export type SceneType = 'door' | 'bed' | 'stove' | 'mingtang' | 'entrance' | 'general'
+export type SceneType = 'door' | 'bed' | 'stove' | 'mingtang' | 'entrance'
 
 export interface FengShuiResult {
   direction: Direction
@@ -32,7 +32,6 @@ const SCENE_LABELS: Record<SceneType, string> = {
   stove: '灶台朝向',
   mingtang: '明堂朝向',
   entrance: '门厅朝向',
-  general: '当前朝向',
 }
 
 // 场景评级
@@ -106,7 +105,6 @@ function getSceneAdvice(dir: Direction, scene: SceneType): string {
     case 'stove': return dir.stoveAdvice
     case 'mingtang': return dir.mingtangAdvice
     case 'entrance': return dir.entranceAdvice
-    default: return dir.description
   }
 }
 
@@ -118,7 +116,6 @@ function getScenePlainAdvice(dir: Direction, scene: SceneType): string {
     case 'stove': return dir.stovePlain
     case 'mingtang': return dir.mingtangPlain
     case 'entrance': return dir.entrancePlain
-    default: return dir.plainSummary
   }
 }
 
@@ -187,10 +184,6 @@ export function interpretFengShui(degree: number, scene: SceneType): FengShuiRes
       tips = ['门厅宜设玄关缓冲气流', '避免大门直通阳台（穿堂煞）', '门厅保持明亮整洁', '忌厕所对门厅']
       plainTips = ['门口最好有个玄关或屏风缓冲一下', '大门直通阳台的话一定要挡一下，这是漏财格局', '门厅保持干净明亮很重要', '厕所门不要正对着门厅']
       break
-    default:
-      summary = `您当前面向**${direction.fullName}（${direction.name}山）**，五行属${direction.element}，${direction.trigramFull}卦位。${direction.description}`
-      tips = ['使用"场景选择"按钮获取针对性的风水建议', '测量时远离电器和金属物品', '手机伸出窗外测量更准确']
-      plainTips = ['点击下方的"测大门""测明堂"等按钮，可以获取更有用的建议', '测量时远离电器和金属物品，结果更准确', '手机伸出窗外测量更准确']
   }
 
   const plainSummary = `${RATING_PLAIN[rating]}！${direction.plainSummary}。${getScenePlainAdvice(direction, scene)}`

@@ -9,10 +9,6 @@ interface SceneButtonsProps {
 
 const SCENES: { type: SceneType; label: string; icon: string; guide: string }[] = [
   {
-    type: 'general', label: '测朝向', icon: '🧭',
-    guide: '站在房间中央，手机平放在手掌上，朝向你要测的方向',
-  },
-  {
     type: 'door', label: '测大门', icon: '🚪',
     guide: '站在入户门内侧（屋里那侧），手机竖起来朝门外方向，屏幕朝向你自己',
   },
