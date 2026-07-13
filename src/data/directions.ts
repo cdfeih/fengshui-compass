@@ -1,0 +1,329 @@
+// 二十四山方位数据
+export interface Direction {
+  name: string       // 简称，如"午"
+  fullName: string   // 全称，如"正南"
+  degreeStart: number
+  degreeEnd: number
+  element: string    // 五行
+  trigram: string    // 八卦
+  trigramFull: string
+  yinYang: string
+  direction: string  // 大方向
+  auspicious: boolean
+  description: string
+  tips: string
+  // 分场景解读
+  doorAdvice: string
+  bedAdvice: string
+  stoveAdvice: string
+  balconyAdvice: string
+}
+
+export const DIRECTIONS: Direction[] = [
+  // ===== 北方坎卦（子癸丑壬亥） =====
+  {
+    name: '子', fullName: '正北', degreeStart: 352.5, degreeEnd: 7.5,
+    element: '水', trigram: '坎', trigramFull: '坎为水', yinYang: '阳',
+    direction: '北', auspicious: true,
+    description: '正北子山，坎卦主位。坎为水，主智慧、事业、中男运。子位属阳水，象征生机暗涌，内敛而有力。此方位宜静不宜动，气场沉稳者利事业发展和学术研究。',
+    tips: '子位宜设书房或静室，放水景或黑色装饰可催旺事业运。忌杂乱、噪音、火气太旺（水火相冲）。',
+    doorAdvice: '大门开子向（正北）：利事业发展和学术进修，但需注意家中男性健康。门口宜设屏风或玄关，避免直冲。宜放鱼缸或水景催旺。',
+    bedAdvice: '床头朝子（正北）：利事业发展，适合上班族和学者。头部朝北有"坐北朝南"之势，睡眠质量较好。忌床头正对窗户。',
+    stoveAdvice: '灶台朝子（正北）：不太理想，水火相冲。建议灶台靠东墙或南墙，避开正北。若无法改变，厨房多用绿色调和。',
+    balconyAdvice: '阳台朝子（正北）：纳北方水气，夏季凉爽。适合养耐阴植物如绿萝、虎皮兰。冬季注意保暖，可放红色装饰补阳气。',
+  },
+  {
+    name: '癸', fullName: '北偏东', degreeStart: 7.5, degreeEnd: 22.5,
+    element: '水', trigram: '坎', trigramFull: '坎为水', yinYang: '阴',
+    direction: '北', auspicious: true,
+    description: '癸山属阴水，坎卦之辅。癸水如雨露，滋养万物无声。此方位气场柔和，利人际关系和贵人运。',
+    tips: '适合设置客厅或会客区域。放水晶或流水摆件可增强人缘。',
+    doorAdvice: '大门开癸向：利人缘和社交。门厅宜明亮宽敞，放绿植或水晶饰品催旺贵人运。',
+    bedAdvice: '床头朝癸：适合需要拓展人脉的行业人士。睡眠安稳，梦境平和。',
+    stoveAdvice: '灶台朝癸：偏北，仍属水向，建议灶台向东或南偏移。',
+    balconyAdvice: '阳台朝癸：早晨有微光，适合放小型盆栽。',
+  },
+  {
+    name: '丑', fullName: '东北偏北', degreeStart: 22.5, degreeEnd: 37.5,
+    element: '土', trigram: '艮', trigramFull: '艮为山', yinYang: '阴',
+    direction: '东北', auspicious: true,
+    description: '丑山属阴土，艮卦之始。丑为金库，主积蓄和稳定。此方位利于储蓄、收藏、稳定发展。',
+    tips: '适合做储物间或保险柜位置。放黄色或陶土装饰可稳固财运。',
+    doorAdvice: '大门开丑向：利积蓄和资产保值。门口保持整洁，忌堆放杂物。',
+    bedAdvice: '床头朝丑：适合老年人和追求稳定者。睡眠深沉，有助健康。',
+    stoveAdvice: '灶台朝丑：土生金，较理想。利于家庭积蓄和食物丰足。',
+    balconyAdvice: '阳台朝丑：适合种花草蔬菜，取"土生万物"之意。',
+  },
+  {
+    name: '艮', fullName: '东北', degreeStart: 37.5, degreeEnd: 52.5,
+    element: '土', trigram: '艮', trigramFull: '艮为山', yinYang: '阳',
+    direction: '东北', auspicious: true,
+    description: '艮山正位，属阳土。艮为山，主子孙运、少男运、学习运。此方位宜高不宜低，象征靠山稳固。',
+    tips: '适合做儿童房或书房。放文昌塔、书籍可旺学业运。忌放镜子（反射靠山）。',
+    doorAdvice: '大门开艮向：利子孙学业，家中孩子学习运好。但需注意家中少男健康。',
+    bedAdvice: '床头朝艮：适合学龄儿童和青少年，利学业和考试运。',
+    stoveAdvice: '灶台朝艮：土气助火，较佳。利于家庭和睦和子女成长。',
+    balconyAdvice: '阳台朝艮：阳光适中，适合晾晒和学习角。',
+  },
+  {
+    name: '寅', fullName: '东北偏东', degreeStart: 52.5, degreeEnd: 67.5,
+    element: '木', trigram: '艮', trigramFull: '艮为山', yinYang: '阳',
+    direction: '东北', auspicious: true,
+    description: '寅山属阳木，艮卦之末、震卦之始。寅为虎，主勇气和开拓。此方位利创业和突破。',
+    tips: '适合做工作间或健身房。放绿色植物或木雕可激发活力。',
+    doorAdvice: '大门开寅向：利创业者和开拓型人才。门口宜开阔，忌狭窄压抑。',
+    bedAdvice: '床头朝寅：适合创业者和运动员。精力充沛，思维活跃。',
+    stoveAdvice: '灶台朝寅：木生火，大吉。利于家庭活力和创新。',
+    balconyAdvice: '阳台朝寅：早晨阳光好，适合晨练和盆栽。',
+  },
+
+  // ===== 东方震卦（甲卯乙） =====
+  {
+    name: '甲', fullName: '东偏北', degreeStart: 67.5, degreeEnd: 82.5,
+    element: '木', trigram: '震', trigramFull: '震为雷', yinYang: '阳',
+    direction: '东', auspicious: true,
+    description: '甲山属阳木，震卦之始。甲木为参天大树，主领导力和权威。此方位利于仕途和管理层。',
+    tips: '适合做办公室或主位。放大型绿植（如发财树）可催旺权威运。',
+    doorAdvice: '大门开甲向：利管理者和公务员。紫气东来，事业上升空间大。',
+    bedAdvice: '床头朝甲：适合管理层和创业者。有助于提升决断力和领导魅力。',
+    stoveAdvice: '灶台朝甲：木火相生，大吉。利家庭主事者的运程。',
+    balconyAdvice: '阳台朝甲：紫气东来，晨光最佳。适合做休闲区，放躺椅品茶。',
+  },
+  {
+    name: '卯', fullName: '正东', degreeStart: 82.5, degreeEnd: 97.5,
+    element: '木', trigram: '震', trigramFull: '震为雷', yinYang: '阴',
+    direction: '东', auspicious: true,
+    description: '卯山正位，震卦之主。卯为兔，主生机、健康、长男运。正东为日出之方，紫气东来，是风水中的"生气方"，最利健康和事业发展。',
+    tips: '正东为文昌位和健康位，宜明亮通风。放绿色植物或文昌塔可催旺。忌堆放杂物或设卫生间。',
+    doorAdvice: '大门开卯向（正东）：紫气东来，大吉之向。利健康、事业和长男运。门口宜保持开阔明亮。',
+    bedAdvice: '床头朝卯（正东）：利健康和学业。早晨阳光唤醒，精力充沛。特别适合学生和需要早起的人。',
+    stoveAdvice: '灶台朝卯（正东）：木火相生，吉。利于家人健康饮食。灶台宜靠实墙。',
+    balconyAdvice: '阳台朝卯（正东）：最佳阳台朝向之一。早晨阳光充足而不刺眼，适合养花和晨练。',
+  },
+  {
+    name: '乙', fullName: '东偏南', degreeStart: 97.5, degreeEnd: 112.5,
+    element: '木', trigram: '震', trigramFull: '震为雷', yinYang: '阴',
+    direction: '东', auspicious: true,
+    description: '乙山属阴木，震卦之末。乙木如花草藤蔓，柔韧而有生命力。此方位利人际关系和合作。',
+    tips: '适合设会客厅或茶室。放鲜花或藤蔓植物可催旺合作运。',
+    doorAdvice: '大门开乙向：利合作和人际关系。适合做生意的家庭。',
+    bedAdvice: '床头朝乙：适合需要团队合作的人士。睡眠质量好，人际关系和谐。',
+    stoveAdvice: '灶台朝乙：吉，利于家庭成员关系和睦。',
+    balconyAdvice: '阳台朝乙：上午阳光好，适合养开花植物。',
+  },
+
+  // ===== 东南巽卦（辰巽巳） =====
+  {
+    name: '辰', fullName: '东南偏东', degreeStart: 112.5, degreeEnd: 127.5,
+    element: '土', trigram: '巽', trigramFull: '巽为风', yinYang: '阳',
+    direction: '东南', auspicious: true,
+    description: '辰山属阳土，巽卦之始。辰为龙，主变化和机遇。此方位利投资和转型发展。',
+    tips: '适合做财务室或投资角。放黄水晶或金属摆件可催旺财运。',
+    doorAdvice: '大门开辰向：利投资和商业机会。门口宜放水景或水晶。',
+    bedAdvice: '床头朝辰：适合投资者和经商者。有助于把握商机。',
+    stoveAdvice: '灶台朝辰：较佳，利家庭经济稳定。',
+    balconyAdvice: '阳台朝辰：阳光充足，适合晾晒和种菜。',
+  },
+  {
+    name: '巽', fullName: '东南', degreeStart: 127.5, degreeEnd: 142.5,
+    element: '木', trigram: '巽', trigramFull: '巽为风', yinYang: '阴',
+    direction: '东南', auspicious: true,
+    description: '巽山正位，属阴木。巽为风，主文昌、财帛、长女运。东南是传统风水中的"财位"所在，也是文昌位，利学习和财运双收。',
+    tips: '东南角为明财位，宜放招财物（貔貅、聚宝盆、发财树）。保持明亮整洁，忌杂乱。',
+    doorAdvice: '大门开巽向（东南）：大吉！财门+文昌门，利财运和子女学业。是风水上最受欢迎的大门朝向之一。',
+    bedAdvice: '床头朝巽（东南）：大吉。利财运和学业。特别适合学生和需要创意的人士。主卧在此方位更佳。',
+    stoveAdvice: '灶台朝巽（东南）：木生火，吉。利于家庭食禄丰足。',
+    balconyAdvice: '阳台朝巽（东南）：采光极佳，上午到中午都有阳光。适合养阔叶植物聚财。',
+  },
+  {
+    name: '巳', fullName: '东南偏南', degreeStart: 142.5, degreeEnd: 157.5,
+    element: '火', trigram: '巽', trigramFull: '巽为风', yinYang: '阳',
+    direction: '东南', auspicious: true,
+    description: '巳山属阳火，巽卦之末。巳为蛇，主智慧和谋略。此方位利策划和创意工作。',
+    tips: '适合做工作室或创意空间。放红色装饰或水晶可激发灵感。',
+    doorAdvice: '大门开巳向：利创意工作者和策划者。门口宜明亮。',
+    bedAdvice: '床头朝巳：适合设计师、作家等创意工作者。',
+    stoveAdvice: '灶台朝巳：火位，需注意通风散热。',
+    balconyAdvice: '阳台朝巳：午前阳光充足，适合晾晒。',
+  },
+
+  // ===== 南方离卦（丙午丁） =====
+  {
+    name: '丙', fullName: '南偏东', degreeStart: 157.5, degreeEnd: 172.5,
+    element: '火', trigram: '离', trigramFull: '离为火', yinYang: '阳',
+    direction: '南', auspicious: true,
+    description: '丙山属阳火，离卦之始。丙火为太阳之火，光明正大。此方位利名声和公众形象。',
+    tips: '适合做客厅主位。放红色或紫色装饰可催旺名声运。保持明亮通风。',
+    doorAdvice: '大门开丙向：利名声和社会地位。适合公众人物和需要曝光度的职业。',
+    bedAdvice: '床头朝丙：火气较旺，适合体质偏寒者。夏季需注意降温。',
+    stoveAdvice: '灶台朝丙：火火相旺，火力足。但需注意厨房通风和防火。',
+    balconyAdvice: '阳台朝丙：采光充足，适合喜阳植物。夏季需遮阳。',
+  },
+  {
+    name: '午', fullName: '正南', degreeStart: 172.5, degreeEnd: 187.5,
+    element: '火', trigram: '离', trigramFull: '离为火', yinYang: '阴',
+    direction: '南', auspicious: true,
+    description: '午山正位，离卦之主。午为马，主名声、事业、中女运。正南是风水中的"明堂"方位，阳气最盛，利事业发展和名声传播。',
+    tips: '正南为明堂位，宜做客厅或主活动区。保持明亮开阔，忌阴暗杂乱。放红色或紫色装饰可催旺事业运。',
+    doorAdvice: '大门开午向（正南）：大吉之向！明堂向阳，财源广进，事业运旺。但需注意门口不宜太开阔（以免气散），宜有玄关缓冲。',
+    bedAdvice: '床头朝午（正南）：火气最旺，适合体质偏寒或需要提升活力者。体质偏热者不宜。床头宜靠实墙，忌对窗。',
+    stoveAdvice: '灶台朝午（正南）：火气过旺，不太理想。建议灶台略微偏移正南方向。若无法改变，厨房多用白色或蓝色调和。',
+    balconyAdvice: '阳台朝午（正南）：采光最佳，全天候阳光。适合养喜阳植物和晾晒。夏季需适当遮阳，避免室内过热。',
+  },
+  {
+    name: '丁', fullName: '南偏西', degreeStart: 187.5, degreeEnd: 202.5,
+    element: '火', trigram: '离', trigramFull: '离为火', yinYang: '阴',
+    direction: '南', auspicious: true,
+    description: '丁山属阴火，离卦之末。丁火为灯烛之火，温暖而不烈。此方位利家庭温馨和感情交流。',
+    tips: '适合设家庭聚餐区或温馨角落。放暖色调灯光和照片墙。',
+    doorAdvice: '大门开丁向：利家庭和睦和感情运。',
+    bedAdvice: '床头朝丁：适合夫妻卧室，温馨和谐。',
+    stoveAdvice: '灶台朝丁：火力温和，适合家庭烹饪。',
+    balconyAdvice: '阳台朝丁：午后阳光温暖，适合下午茶。',
+  },
+
+  // ===== 西南坤卦（未坤申） =====
+  {
+    name: '未', fullName: '西南偏南', degreeStart: 202.5, degreeEnd: 217.5,
+    element: '土', trigram: '坤', trigramFull: '坤为地', yinYang: '阴',
+    direction: '西南', auspicious: true,
+    description: '未山属阴土，坤卦之始。未为羊，主温顺和包容。此方位利家庭和谐和人际关系。',
+    tips: '适合设家庭活动区或老人房。放黄色或米色装饰可增家庭温馨感。',
+    doorAdvice: '大门开未向：利家庭和睦。门口宜整洁温馨。',
+    bedAdvice: '床头朝未：适合老人和需要安稳睡眠者。',
+    stoveAdvice: '灶台朝未：土助火势，较佳。利家庭和睦。',
+    balconyAdvice: '阳台朝未：午后有阳光，适合晾晒被褥。',
+  },
+  {
+    name: '坤', fullName: '西南', degreeStart: 217.5, degreeEnd: 232.5,
+    element: '土', trigram: '坤', trigramFull: '坤为地', yinYang: '阴',
+    direction: '西南', auspicious: true,
+    description: '坤山正位，属阴土。坤为地，主母亲、婚姻、包容。此方位宜静不宜动，象征大地般的包容和稳定。',
+    tips: '适合做主卧或老人房。放陶瓷或黄色装饰可稳固婚姻运。忌设卫生间或厨房（污秽压坤位）。',
+    doorAdvice: '大门开坤向（西南）：利家庭稳定和女主人运。但需注意阴气较重，门口宜明亮。',
+    bedAdvice: '床头朝坤（西南）：适合夫妻和老人。利婚姻稳定和健康。',
+    stoveAdvice: '灶台朝坤（西南）：土助火势，较佳。利女主人健康和家庭饮食。',
+    balconyAdvice: '阳台朝坤（西南）：午后阳光充足，适合晾晒和休闲。',
+  },
+  {
+    name: '申', fullName: '西南偏西', degreeStart: 232.5, degreeEnd: 247.5,
+    element: '金', trigram: '坤', trigramFull: '坤为地', yinYang: '阳',
+    direction: '西南', auspicious: true,
+    description: '申山属阳金，坤卦之末。申为猴，主灵活和变通。此方位利人际交往和旅行。',
+    tips: '适合做客房或多功能室。放金属摆件或白色装饰可增强变通能力。',
+    doorAdvice: '大门开申向：利出差旅行和人际交往。',
+    bedAdvice: '床头朝申：适合经常出差者。',
+    stoveAdvice: '灶台朝申：较佳，火克金为财，利经济收入。',
+    balconyAdvice: '阳台朝申：下午阳光，适合种香草植物。',
+  },
+
+  // ===== 西方兑卦（庚酉辛） =====
+  {
+    name: '庚', fullName: '西偏南', degreeStart: 247.5, degreeEnd: 262.5,
+    element: '金', trigram: '兑', trigramFull: '兑为泽', yinYang: '阳',
+    direction: '西', auspicious: true,
+    description: '庚山属阳金，兑卦之始。庚金为刀剑之金，主决断和执行力。此方位利执行力和竞争。',
+    tips: '适合做办公室或决策区。放金属摆件或白色装饰可增强执行力。',
+    doorAdvice: '大门开庚向：利竞争和执行力。适合需要果断决策的职业。',
+    bedAdvice: '床头朝庚：适合管理层和需要决策力的人。',
+    stoveAdvice: '灶台朝庚：火克金，灶火克金为财，利收入。',
+    balconyAdvice: '阳台朝庚：西晒明显，需遮阳。',
+  },
+  {
+    name: '酉', fullName: '正西', degreeStart: 262.5, degreeEnd: 277.5,
+    element: '金', trigram: '兑', trigramFull: '兑为泽', yinYang: '阴',
+    direction: '西', auspicious: true,
+    description: '酉山正位，兑卦之主。酉为鸡，主子嗣、少女运、口才。正西在风水中主后代和表达能力。',
+    tips: '正西宜做儿童房或娱乐室。放金属风铃或白色装饰可旺子嗣运。忌设厨房（火克金）。',
+    doorAdvice: '大门开酉向（正西）：利子女运和表达能力。适合有学龄儿童的家庭。',
+    bedAdvice: '床头朝酉（正西）：适合儿童和需要提升表达能力的人。',
+    stoveAdvice: '灶台朝酉（正西）：火克金，不太理想。建议避开正西。',
+    balconyAdvice: '阳台朝酉（正西）：西晒严重，需做好遮阳措施。适合养耐热植物。',
+  },
+  {
+    name: '辛', fullName: '西偏北', degreeStart: 277.5, degreeEnd: 292.5,
+    element: '金', trigram: '兑', trigramFull: '兑为泽', yinYang: '阴',
+    direction: '西', auspicious: true,
+    description: '辛山属阴金，兑卦之末。辛金为首饰之金，主精致和审美。此方位利艺术和精致生活。',
+    tips: '适合做衣帽间或化妆间。放镜子或艺术品可增强审美运。',
+    doorAdvice: '大门开辛向：利艺术工作者和注重生活品质者。',
+    bedAdvice: '床头朝辛：适合艺术工作者和注重外表者。',
+    stoveAdvice: '灶台朝辛：较佳，火克金为财。',
+    balconyAdvice: '阳台朝辛：下午光线柔和，适合放艺术品或小雕塑。',
+  },
+
+  // ===== 西北乾卦（戌乾亥） =====
+  {
+    name: '戌', fullName: '西北偏西', degreeStart: 292.5, degreeEnd: 307.5,
+    element: '土', trigram: '乾', trigramFull: '乾为天', yinYang: '阳',
+    direction: '西北', auspicious: true,
+    description: '戌山属阳土，乾卦之始。戌为狗，主忠诚和守护。此方位利家庭安全和稳定。',
+    tips: '适合做玄关或储物区。放石雕或土色装饰可增强安全感。',
+    doorAdvice: '大门开戌向：利家庭安全和稳定。门口宜整洁有护卫感。',
+    bedAdvice: '床头朝戌：适合追求安全感和稳定者。',
+    stoveAdvice: '灶台朝戌：较佳，土助火势。',
+    balconyAdvice: '阳台朝戌：傍晚可看日落，适合放松。',
+  },
+  {
+    name: '乾', fullName: '西北', degreeStart: 307.5, degreeEnd: 322.5,
+    element: '金', trigram: '乾', trigramFull: '乾为天', yinYang: '阳',
+    direction: '西北', auspicious: true,
+    description: '乾山正位，属阳金。乾为天，主父亲、男主人、权威。西北是家中男主人的方位，象征天行健、君子以自强不息。',
+    tips: '西北宜做书房或男主人的空间。放金属摆件或钟表可催旺权威运。忌设厨房（火克金）和卫生间（污秽压乾位）。',
+    doorAdvice: '大门开乾向（西北）：利男主人事业和家庭权威。门口宜大气庄重。',
+    bedAdvice: '床头朝乾（西北）：大吉。利男主人的事业和健康。适合一家之主。',
+    stoveAdvice: '灶台朝乾（西北）：火克金，大忌！严重影响男主人健康和事业。务必避开西北方向。',
+    balconyAdvice: '阳台朝乾（西北）：冬季风大，需注意保暖。适合种耐寒植物。',
+  },
+  {
+    name: '亥', fullName: '西北偏北', degreeStart: 322.5, degreeEnd: 337.5,
+    element: '水', trigram: '乾', trigramFull: '乾为天', yinYang: '阴',
+    direction: '西北', auspicious: true,
+    description: '亥山属阴水，乾卦之末。亥为猪，主福气和满足。此方位利享受和福气。',
+    tips: '适合做休闲区或娱乐室。放水景或蓝色装饰可增强福气运。',
+    doorAdvice: '大门开亥向：利福气和享受。适合追求生活品质者。',
+    bedAdvice: '床头朝亥：适合退休人士和追求安逸者。',
+    stoveAdvice: '灶台朝亥：水火既济，较佳。利于饮食享受。',
+    balconyAdvice: '阳台朝亥：冬季需注意保暖。',
+  },
+
+  // ===== 北方坎卦之末 =====
+  {
+    name: '壬', fullName: '北偏西', degreeStart: 337.5, degreeEnd: 352.5,
+    element: '水', trigram: '坎', trigramFull: '坎为水', yinYang: '阳',
+    direction: '北', auspicious: true,
+    description: '壬山属阳水，坎卦之末。壬水为江河之水，主流动和变化。此方位利旅行和流动性工作。',
+    tips: '适合设走廊或通道。放流水摆件或蓝色装饰可增强流动性。',
+    doorAdvice: '大门开壬向：利流动性工作和经常出差者。',
+    bedAdvice: '床头朝壬：适合经常旅行者。但不宜长期固定。',
+    stoveAdvice: '灶台朝壬：水火相冲，不太理想。建议避开。',
+    balconyAdvice: '阳台朝壬：冬季偏冷，适合养耐寒植物。',
+  },
+]
+
+// 工具函数：根据度数查找方位
+export function findDirection(degree: number): Direction {
+  // 规范化度数到0-360
+  let d = degree % 360
+  if (d < 0) d += 360
+
+  // 处理跨0度的情况（子位）
+  if (d >= 352.5 || d < 7.5) {
+    return DIRECTIONS[0] // 子
+  }
+
+  // 二分查找（数组已排序）
+  for (const dir of DIRECTIONS) {
+    if (d >= dir.degreeStart && d < dir.degreeEnd) {
+      return dir
+    }
+  }
+
+  return DIRECTIONS[0] // fallback
+}
+
+// 获取大方向
+export function getDirectionCategory(degree: number): string {
+  const dir = findDirection(degree)
+  return dir.direction
+}

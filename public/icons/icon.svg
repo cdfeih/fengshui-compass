@@ -1,0 +1,49 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512">
+  <defs>
+    <radialGradient id="bg" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#D4A84B"/>
+      <stop offset="100%" stop-color="#8B6914"/>
+    </radialGradient>
+  </defs>
+  <!-- Background circle -->
+  <circle cx="256" cy="256" r="240" fill="url(#bg)"/>
+  <!-- Outer ring -->
+  <circle cx="256" cy="256" r="220" fill="none" stroke="#FFF8E7" stroke-width="3"/>
+  <circle cx="256" cy="256" r="200" fill="none" stroke="#FFF8E7" stroke-width="1"/>
+  <!-- Compass markings - 24 mountains simplified -->
+  <g fill="#FFF8E7" font-family="serif" font-size="22" text-anchor="middle">
+    <text x="256" y="78">子</text>
+    <text x="256" y="444">午</text>
+    <text x="82" y="262">卯</text>
+    <text x="430" y="262">酉</text>
+    <!-- NE -->
+    <text x="166" y="118">癸</text>
+    <text x="346" y="118">丑</text>
+    <text x="130" y="168">艮</text>
+    <text x="382" y="168">寅</text>
+    <!-- SE -->
+    <text x="130" y="358">甲</text>
+    <text x="382" y="358">辰</text>
+    <text x="166" y="402">乙</text>
+    <text x="346" y="402">巽</text>
+    <!-- SW -->
+    <text x="166" y="120">壬</text>
+    <text x="346" y="120">亥</text>
+    <text x="130" y="358">乾</text>
+    <text x="382" y="358">戌</text>
+    <!-- NW -->
+    <text x="130" y="168">丙</text>
+    <text x="382" y="168">巳</text>
+    <text x="166" y="402">丁</text>
+    <text x="346" y="402">坤</text>
+  </g>
+  <!-- Center -->
+  <circle cx="256" cy="256" r="60" fill="#FFF8E7"/>
+  <!-- Compass needle -->
+  <polygon points="256,180 246,260 256,250 266,260" fill="#C41E3A"/>
+  <polygon points="256,332 246,252 256,262 266,252" fill="#333"/>
+  <circle cx="256" cy="256" r="8" fill="#C41E3A"/>
+  <!-- N/S marks -->
+  <text x="256" y="200" fill="#C41E3A" font-family="serif" font-size="16" text-anchor="middle" font-weight="bold">N</text>
+  <text x="256" y="320" fill="#333" font-family="serif" font-size="16" text-anchor="middle">S</text>
+</svg>
