@@ -219,7 +219,15 @@ html, body {
   flex-wrap: wrap;
   justify-content: center;
   width: 100%;
-  max-width: 320px;
+  max-width: 360px;
+  position: relative;
+}
+
+.scene-btn-wrapper {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
 .scene-btn {
@@ -234,6 +242,7 @@ html, body {
   cursor: pointer;
   transition: all 0.2s;
   min-width: 58px;
+  position: relative;
 }
 
 .scene-btn.active {
@@ -244,6 +253,58 @@ html, body {
 
 .scene-icon { font-size: 20px; }
 .scene-label { font-size: 10px; white-space: nowrap; }
+
+.scene-info-icon {
+  font-size: 9px;
+  color: var(--text-muted);
+  position: absolute;
+  top: 2px;
+  right: 4px;
+  opacity: 0.6;
+}
+
+.scene-btn.active .scene-info-icon { color: rgba(255,255,255,0.7); }
+
+/* 场景 tooltip */
+.scene-tooltip {
+  position: absolute;
+  bottom: calc(100% + 8px);
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 150;
+  min-width: 220px;
+  max-width: 300px;
+}
+
+.tooltip-arrow {
+  width: 0; height: 0;
+  border-left: 8px solid transparent;
+  border-right: 8px solid transparent;
+  border-top: 8px solid var(--primary-dark);
+  margin: 0 auto;
+}
+
+.tooltip-content {
+  background: white;
+  border: 1px solid var(--primary-dark);
+  border-radius: 8px;
+  padding: 10px 12px;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.15);
+}
+
+.tooltip-content strong {
+  font-size: 13px;
+  color: var(--primary-dark);
+  display: block;
+  margin-bottom: 4px;
+}
+
+.tooltip-content p {
+  font-size: 13px;
+  color: var(--text);
+  line-height: 1.6;
+  margin: 0;
+}
 
 /* 结果卡片 */
 .result-card {
