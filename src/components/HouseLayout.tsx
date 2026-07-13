@@ -1,108 +1,202 @@
-// 九宫格方位图 —— 直观展示各房间在哪个卦位
-interface HouseInfo {
-  kitchen: string
-  masterBedroom: string
-  bathroom: string
-  livingRoom: string
-  direction: string
-  layout: string
-  balcony: string
-  doorPattern?: string
-}
+import { useState } from 'react'
+import { useAppState } from '../context/AppContext'
+
+// 房间类型定义
+const ROOM_TYPES = [
+  { key: 'kitchen', label: '厨房', color: '#FF6B35', icon: '🍳' },
+  { key: 'masterBedroom', label: '主卧', color: '#6C5CE7', icon: '🛏️' },
+  { key: 'livingRoom', label: '客厅', color: '#2E7D32', icon: '📺' },
+  { key: 'bathroom', label: '卫生间', color: '#A8A8A8', icon: '🚿' },
+  { key: 'clear', label: '清除', color: '#999', icon: '✕' },
+] as const
 
 const GRID_POSITIONS = [
-  { label: '西南', sub: '坤·母', x: 0, y: 0 },
-  { label: '正西', sub: '兑·女', x: 1, y: 0 },
-  { label: '西北', sub: '乾·父', x: 2, y: 0 },
-  { label: '正南', sub: '离·火', x: 0, y: 1 },
-  { label: '中宫', sub: '中心', x: 1, y: 1 },
-  { label: '正北', sub: '坎·水', x: 2, y: 1 },
-  { label: '东南', sub: '巽·财', x: 0, y: 2 },
-  { label: '正东', sub: '震·健', x: 1, y: 2 },
-  { label: '东北', sub: '艮·学', x: 2, y: 2 },
+  { label: '西南', sub: '坤·母', dirKey: '西南', x: 0, y: 0 },
+  { label: '正西', sub: '兑·女', dirKey: '西', x: 1, y: 0 },
+  { label: '西北', sub: '乾·父', dirKey: '西北', x: 2, y: 0 },
+  { label: '正南', sub: '离·火', dirKey: '南', x: 0, y: 1 },
+  { label: '中宫', sub: '中心', dirKey: '中间', x: 1, y: 1 },
+  { label: '正北', sub: '坎·水', dirKey: '北', x: 2, y: 1 },
+  { label: '东南', sub: '巽·财', dirKey: '东南', x: 0, y: 2 },
+  { label: '正东', sub: '震·健', dirKey: '东', x: 1, y: 2 },
+  { label: '东北', sub: '艮·学', dirKey: '东北', x: 2, y: 2 },
 ]
 
-// 方位名 → 格子位置映射
-const DIR_TO_POS: Record<string, { x: number; y: number }> = {
-  '西南': { x: 0, y: 0 }, '正西': { x: 1, y: 0 }, '西北': { x: 2, y: 0 },
-  '正南': { x: 0, y: 1 }, '中间': { x: 1, y: 1 }, '正北': { x: 2, y: 1 },
-  '东南': { x: 0, y: 2 }, '正东': { x: 1, y: 2 }, '东北': { x: 2, y: 2 },
-  '南': { x: 0, y: 1 }, '西': { x: 1, y: 0 }, '北': { x: 2, y: 1 },
-  '东': { x: 1, y: 2 },
+// 房间 key → HouseInfo 字段映射
+const ROOM_TO_FIELD: Record<string, string> = {
+  kitchen: 'kitchen',
+  masterBedroom: 'masterBedroom',
+  livingRoom: 'livingRoom',
+  bathroom: 'bathroom',
 }
 
-// 房间颜色和标签
-const ROOM_COLORS: Record<string, string> = {
-  kitchen: '#FF6B35',        // 厨房 - 橙色
-  masterBedroom: '#6C5CE7',  // 主卧 - 紫色
-  bathroom: '#A8A8A8',       // 卫生间 - 灰色
-  livingRoom: '#2E7D32',     // 客厅 - 绿色
+// 中宫不允许放：主卧（没有"中间"选项）
+const ROOM_BLACKLIST_PER_CELL: Record<string, string[]> = {
+  '中宫': ['masterBedroom'], // 主卧只能8方位，不能居中
 }
 
-const ROOM_LABELS: Record<string, string> = {
-  kitchen: '厨房',
-  masterBedroom: '主卧',
-  bathroom: '卫生间',
-  livingRoom: '客厅',
-}
+export default function HouseLayout() {
+  const { houseInfo, setHouseInfo } = useAppState()
+  const [activeCell, setActiveCell] = useState<string | null>(null)
 
-export default function HouseLayout({ info }: { info: HouseInfo }) {
-  // 计算各房间在哪个格子
-  const rooms: { key: string; pos: { x: number; y: number } }[] = []
-  if (DIR_TO_POS[info.kitchen]) rooms.push({ key: 'kitchen', pos: DIR_TO_POS[info.kitchen] })
-  if (DIR_TO_POS[info.masterBedroom]) rooms.push({ key: 'masterBedroom', pos: DIR_TO_POS[info.masterBedroom] })
-  if (DIR_TO_POS[info.bathroom]) rooms.push({ key: 'bathroom', pos: DIR_TO_POS[info.bathroom] })
-  if (DIR_TO_POS[info.livingRoom]) rooms.push({ key: 'livingRoom', pos: DIR_TO_POS[info.livingRoom] })
-
-  // 判断每个格子是否有风水问题
-  const getCellWarning = (label: string): string | null => {
-    const kitchenHere = rooms.find(r => r.key === 'kitchen' && DIR_TO_POS[label]?.x === r.pos.x && DIR_TO_POS[label]?.y === r.pos.y)
-    const bathroomHere = rooms.find(r => r.key === 'bathroom' && DIR_TO_POS[label]?.x === r.pos.x && DIR_TO_POS[label]?.y === r.pos.y)
-
-    // 厨房问题
-    if (kitchenHere && label === '西北') return '🔥 火烧天门'
-    if (kitchenHere && label === '正西') return '厨房在此不佳'
-    if (kitchenHere && label === '正北') return '厨房水火冲'
-    if (kitchenHere && label === '中宫') return '🔥 火烧中宫'
-
-    // 卫生间问题
-    if (bathroomHere && label === '中宫') return '🚽 中宫受污'
-    if (bathroomHere && label === '西北') return '🚽 压乾位'
-    if (bathroomHere && label === '西南') return '🚽 压坤位'
-
+  // 方位名 → 房间反向映射
+  const getRoomInCell = (dirKey: string): { key: string; label: string; color: string; icon: string } | null => {
+    const fields = [
+      { key: 'kitchen', value: houseInfo.kitchen },
+      { key: 'masterBedroom', value: houseInfo.masterBedroom },
+      { key: 'livingRoom', value: houseInfo.livingRoom },
+      { key: 'bathroom', value: houseInfo.bathroom },
+    ]
+    for (const f of fields) {
+      if (f.value === dirKey) {
+        const roomDef = ROOM_TYPES.find(r => r.key === f.key)
+        if (roomDef) return { key: f.key, label: roomDef.label, color: roomDef.color, icon: roomDef.icon }
+      }
+    }
     return null
   }
+
+  // 判断每个格子是否有风水问题
+  const getCellWarning = (dirKey: string): string | null => {
+    const roomInCell = getRoomInCell(dirKey)
+    if (!roomInCell) return null
+
+    if (roomInCell.key === 'kitchen') {
+      if (dirKey === '西北') return '🔥 火烧天门'
+      if (dirKey === '西') return '厨房不佳'
+      if (dirKey === '北') return '厨房水火冲'
+      if (dirKey === '中间') return '🔥 火烧中宫'
+    }
+    if (roomInCell.key === 'bathroom') {
+      if (dirKey === '中间') return '🚽 中宫受污'
+      if (dirKey === '西北') return '🚽 压乾位'
+      if (dirKey === '西南') return '🚽 压坤位'
+    }
+    return null
+  }
+
+  // 点击格子放置房间
+  const handleCellClick = (dirKey: string) => {
+    setActiveCell(activeCell === dirKey ? null : dirKey)
+  }
+
+  // 选择房间类型
+  const handleRoomSelect = (roomKey: string, dirKey: string) => {
+    if (roomKey === 'clear') {
+      // 清除这个格子的房间：找到当前占据的房间并重置
+      const currentRoom = getRoomInCell(dirKey)
+      if (currentRoom) {
+        const field = ROOM_TO_FIELD[currentRoom.key]
+        // 重置为默认值
+        setHouseInfo({ [field]: '' })
+      }
+      setActiveCell(null)
+      return
+    }
+
+    // 检查该房间是否已被限制在这个格子
+    const blacklist = ROOM_BLACKLIST_PER_CELL[dirKey] || []
+    if (blacklist.includes(roomKey)) {
+      // 主卧不能放中宫，提示
+      return
+    }
+
+    // 先检查这个房间之前是否在其他格子，需要清除旧位置
+    const field = ROOM_TO_FIELD[roomKey]
+    const oldValue = houseInfo[field as keyof typeof houseInfo]
+    if (oldValue && oldValue !== dirKey) {
+      // 房间从旧位置移走，旧位置变空
+      // 不需要特别处理，因为移走后旧格子自然就没有了
+    }
+
+    // 如果这个格子已经有别的房间，先移走
+    const currentRoom = getRoomInCell(dirKey)
+    if (currentRoom && currentRoom.key !== roomKey) {
+      const currentField = ROOM_TO_FIELD[currentRoom.key]
+      setHouseInfo({ [currentField]: '' })
+    }
+
+    // 放置新房间
+    setHouseInfo({ [field]: dirKey })
+    setActiveCell(null)
+  }
+
+  // 统计已放置的房间数
+  const placedRooms = [
+    houseInfo.kitchen,
+    houseInfo.masterBedroom,
+    houseInfo.livingRoom,
+    houseInfo.bathroom,
+  ].filter(v => v !== '').length
 
   return (
     <div className="house-layout">
       <h4>🏠 家居方位图</h4>
-      <p className="layout-desc">下面的图展示了你家各房间在哪个方位，红色标记表示需要注意的位置</p>
+      <p className="layout-desc">
+        👇 点击格子选择这个方位放什么房间（{placedRooms}/4 已放置）
+      </p>
+
       <div className="layout-grid">
         {GRID_POSITIONS.map(pos => {
-          const roomInCell = rooms.find(r => r.pos.x === pos.x && r.pos.y === pos.y)
-          const warning = getCellWarning(pos.label)
+          const roomInCell = getRoomInCell(pos.dirKey)
+          const warning = getCellWarning(pos.dirKey)
+          const isActive = activeCell === pos.dirKey
+          const blacklist = ROOM_BLACKLIST_PER_CELL[pos.dirKey] || []
+
           return (
-            <div key={`${pos.x}-${pos.y}`} className={`layout-cell ${warning ? 'cell-warning' : ''}`}>
+            <div key={`${pos.x}-${pos.y}`} className={`layout-cell ${warning ? 'cell-warning' : ''} ${isActive ? 'cell-active' : ''}`}
+              onClick={() => handleCellClick(pos.dirKey)}>
               <div className="cell-label">{pos.label}</div>
               <div className="cell-sub">{pos.sub}</div>
               {roomInCell && (
-                <div className="cell-room" style={{ backgroundColor: ROOM_COLORS[roomInCell.key] }}>
-                  {ROOM_LABELS[roomInCell.key]}
+                <div className="cell-room" style={{ backgroundColor: roomInCell.color }}>
+                  {roomInCell.icon} {roomInCell.label}
                 </div>
+              )}
+              {!roomInCell && !warning && (
+                <div className="cell-empty">点击放置</div>
               )}
               {warning && (
                 <div className="cell-warning-text">{warning}</div>
+              )}
+
+              {/* 房间选择弹出 */}
+              {isActive && (
+                <div className="cell-selector">
+                  {ROOM_TYPES.filter(r => r.key !== 'clear').filter(r => !blacklist.includes(r.key)).map(r => (
+                    <button key={r.key}
+                      className={`selector-btn ${roomInCell?.key === r.key ? 'selector-active' : ''}`}
+                      style={{ borderColor: r.color }}
+                      onClick={(e) => { e.stopPropagation(); handleRoomSelect(r.key, pos.dirKey) }}>
+                      {r.icon} {r.label}
+                    </button>
+                  ))}
+                  {roomInCell && (
+                    <button className="selector-btn selector-clear"
+                      onClick={(e) => { e.stopPropagation(); handleRoomSelect('clear', pos.dirKey) }}>
+                      ✕ 清除
+                    </button>
+                  )}
+                </div>
               )}
             </div>
           )
         })}
       </div>
+
       <div className="layout-legend">
-        <span className="legend-item" style={{ backgroundColor: ROOM_COLORS.kitchen }}>厨房</span>
-        <span className="legend-item" style={{ backgroundColor: ROOM_COLORS.masterBedroom }}>主卧</span>
-        <span className="legend-item" style={{ backgroundColor: ROOM_COLORS.livingRoom }}>客厅</span>
-        <span className="legend-item" style={{ backgroundColor: ROOM_COLORS.bathroom }}>卫生间</span>
+        {ROOM_TYPES.filter(r => r.key !== 'clear').map(r => (
+          <span key={r.key} className="legend-item" style={{ backgroundColor: r.color }}>
+            {r.icon} {r.label}
+          </span>
+        ))}
       </div>
+
+      {placedRooms < 4 && (
+        <div className="layout-hint">
+          💡 点击空格子，选择这个方位放什么房间。也可以用下面的下拉框精确调整
+        </div>
+      )}
     </div>
   )
 }

@@ -115,9 +115,11 @@ export default function Analysis() {
     items.push({ name: '户型格局', score: layoutScore, maxScore: 5, weight: 1.5, comment: layoutComment, plainComment: layoutPlain })
 
     // 3. 厨房位置 (权重2.5)
-    let kitchenScore = 5, kitchenComment = '', kitchenPlain = ''
+    let kitchenScore = 3, kitchenComment = '', kitchenPlain = ''
     const kitchenPos = info.kitchen
-    if (['东', '东南'].includes(kitchenPos)) {
+    if (!kitchenPos) {
+      kitchenComment = '请选择厨房位置'; kitchenPlain = '请在方位图或下拉框中选择厨房在哪个方位'
+    } else if (['东', '东南'].includes(kitchenPos)) {
       kitchenScore = 5; kitchenComment = '厨房在东/东南，木火相生大吉'; kitchenPlain = '厨房在东边或东南边，位置非常好，做饭顺心，家人吃得香'
     } else if (kitchenPos === '南') {
       kitchenScore = 3; kitchenComment = '厨房在南火气过旺'; kitchenPlain = '厨房在南边，做饭时会比较热，注意通风'
@@ -139,9 +141,11 @@ export default function Analysis() {
     items.push({ name: '厨房位置', score: kitchenScore, maxScore: 5, weight: 2.5, comment: kitchenComment, plainComment: kitchenPlain })
 
     // 4. 卫生间位置 (权重1.5)
-    let bathroomScore = 5, bathroomComment = '', bathroomPlain = ''
+    let bathroomScore = 3, bathroomComment = '', bathroomPlain = ''
     const bathroomPos = info.bathroom
-    if (bathroomPos === '中间') {
+    if (!bathroomPos) {
+      bathroomComment = '请选择卫生间位置'; bathroomPlain = '请在方位图或下拉框中选择卫生间在哪个方位'
+    } else if (bathroomPos === '中间') {
       bathroomScore = 1; bathroomComment = '卫生间居中污秽弥漫全屋'; bathroomPlain = '卫生间在房子正中间是大忌！脏气和湿气会弥漫整个家'
       warnings.push('卫生间居中严重影响全家健康'); plainWarnings.push('卫生间在正中间最差，脏气散到全屋，影响全家健康')
     } else if (bathroomPos === '西南') {
@@ -158,9 +162,11 @@ export default function Analysis() {
     items.push({ name: '卫生间位置', score: bathroomScore, maxScore: 5, weight: 1.5, comment: bathroomComment, plainComment: bathroomPlain })
 
     // 5. 主卧位置 (权重1.5)
-    let bedroomScore = 5, bedroomComment = '', bedroomPlain = ''
+    let bedroomScore = 3, bedroomComment = '', bedroomPlain = ''
     const bedPos = info.masterBedroom
-    if (['东南', '西南', '西北'].includes(bedPos)) {
+    if (!bedPos) {
+      bedroomComment = '请选择主卧位置'; bedroomPlain = '请在方位图或下拉框中选择主卧在哪个方位'
+    } else if (['东南', '西南', '西北'].includes(bedPos)) {
       bedroomScore = 5; bedroomComment = '主卧在吉位'; bedroomPlain = '主卧在这个方向非常好，住着舒服运势好'
     } else if (['东', '南', '东北'].includes(bedPos)) {
       bedroomScore = 4; bedroomComment = '主卧位置较佳'; bedroomPlain = '主卧位置不错，对健康和事业有帮助'
@@ -173,9 +179,11 @@ export default function Analysis() {
     items.push({ name: '主卧位置', score: bedroomScore, maxScore: 5, weight: 1.5, comment: bedroomComment, plainComment: bedroomPlain })
 
     // 6. 客厅位置 (权重1.5 —— 新增)
-    let livingRoomScore = 5, livingRoomComment = '', livingRoomPlain = ''
+    let livingRoomScore = 3, livingRoomComment = '', livingRoomPlain = ''
     const livingPos = info.livingRoom
-    if (livingPos === '中间') {
+    if (!livingPos) {
+      livingRoomComment = '请选择客厅位置'; livingRoomPlain = '请在方位图或下拉框中选择客厅在哪个方位'
+    } else if (livingPos === '中间') {
       livingRoomScore = 5; livingRoomComment = '客厅居中聚气最佳'; livingRoomPlain = '客厅在房子正中间最好，是家里的核心，聚气纳财'
     } else if (['南', '东南'].includes(livingPos)) {
       livingRoomScore = 5; livingRoomComment = '客厅在南/东南采光充足纳气好'; livingRoomPlain = '客厅在南边或东南边非常好，采光好又纳气'
@@ -310,8 +318,8 @@ export default function Analysis() {
         </div>
       )}
 
-      {/* 九宫格方位图 */}
-      <HouseLayout info={info} />
+      {/* 九宫格方位图（交互式） */}
+      <HouseLayout />
 
       {/* 空间关系警告 */}
       {spatialWarnings.length > 0 && (
@@ -362,29 +370,33 @@ export default function Analysis() {
       </div>
 
       <div className="form-group">
-        <label>厨房位置</label>
+        <label>厨房位置 <span className="field-hint">👇 或点击上方方位图直接放置</span></label>
         <select value={info.kitchen} onChange={e => updateField('kitchen', e.target.value)}>
-          {KITCHEN_OPTIONS.map(k => <option key={k} value={k}>{k}面</option>)}
+          <option value="">未选择</option>
+          {KITCHEN_OPTIONS.map(k => <option key={k} value={k}>{k === '中间' ? '居中' : `${k}面`}</option>)}
         </select>
       </div>
 
       <div className="form-group">
-        <label>卫生间位置</label>
+        <label>卫生间位置 <span className="field-hint">👇 或点击上方方位图直接放置</span></label>
         <select value={info.bathroom} onChange={e => updateField('bathroom', e.target.value)}>
-          {BATHROOM_OPTIONS.map(b => <option key={b} value={b}>{b === '中间' ? '中间' : `${b}面`}</option>)}
+          <option value="">未选择</option>
+          {BATHROOM_OPTIONS.map(b => <option key={b} value={b}>{b === '中间' ? '居中' : `${b}面`}</option>)}
         </select>
       </div>
 
       <div className="form-group">
-        <label>主卧位置</label>
+        <label>主卧位置 <span className="field-hint">👇 或点击上方方位图直接放置</span></label>
         <select value={info.masterBedroom} onChange={e => updateField('masterBedroom', e.target.value)}>
+          <option value="">未选择</option>
           {BEDROOM_OPTIONS.map(b => <option key={b} value={b}>{b}角</option>)}
         </select>
       </div>
 
       <div className="form-group">
-        <label>客厅位置</label>
+        <label>客厅位置 <span className="field-hint">👇 或点击上方方位图直接放置</span></label>
         <select value={info.livingRoom} onChange={e => updateField('livingRoom', e.target.value)}>
+          <option value="">未选择</option>
           {LIVING_ROOM_OPTIONS.map(l => <option key={l} value={l}>{l === '中间' ? '居中' : `${l}面`}</option>)}
         </select>
       </div>

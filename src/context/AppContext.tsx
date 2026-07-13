@@ -36,10 +36,10 @@ const DEFAULT_HOUSE_INFO: HouseInfo = {
   direction: '正南',
   layout: '方正',
   balcony: '双阳台',
-  kitchen: '北',
-  masterBedroom: '东南',
-  bathroom: '西南',
-  livingRoom: '南',
+  kitchen: '',
+  masterBedroom: '',
+  bathroom: '',
+  livingRoom: '',
   doorPattern: '正常',
 }
 

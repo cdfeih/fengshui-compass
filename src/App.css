@@ -810,6 +810,7 @@ html, body {
 }
 .house-layout h4 { font-size: 15px; color: var(--primary-dark); margin-bottom: 4px; }
 .layout-desc { font-size: 13px; color: var(--text-light); margin-bottom: 12px; }
+.layout-hint { font-size: 13px; color: var(--primary); margin-top: 8px; text-align: center; }
 
 .layout-grid {
   display: grid;
@@ -830,9 +831,13 @@ html, body {
   justify-content: center;
   gap: 2px;
   transition: border-color 0.2s;
+  cursor: pointer;
+  position: relative;
 }
 
+.layout-cell:hover { border-color: var(--primary); }
 .layout-cell.cell-warning { border-color: var(--accent); border-width: 2px; background: #FFF0F0; }
+.layout-cell.cell-active { border-color: var(--primary); border-width: 2px; background: #FFF8E7; }
 
 .cell-label { font-size: 13px; font-weight: 600; color: var(--primary-dark); }
 .cell-sub { font-size: 10px; color: var(--text-muted); }
@@ -841,7 +846,48 @@ html, body {
   padding: 2px 8px; border-radius: 6px;
   margin-top: 2px;
 }
+.cell-empty {
+  font-size: 11px; color: var(--text-muted);
+  opacity: 0.6;
+  margin-top: 2px;
+}
 .cell-warning-text { font-size: 14px; margin-top: 2px; }
+
+/* 格子内房间选择器 */
+.cell-selector {
+  position: absolute;
+  bottom: calc(100% + 4px);
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 200;
+  background: white;
+  border: 1px solid var(--primary);
+  border-radius: 8px;
+  padding: 6px 8px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+  min-width: 160px;
+}
+
+.selector-btn {
+  padding: 4px 10px;
+  border: 1px solid;
+  border-radius: 6px;
+  font-size: 12px;
+  background: white;
+  cursor: pointer;
+  transition: background 0.2s;
+  white-space: nowrap;
+}
+
+.selector-btn:hover { opacity: 0.85; }
+.selector-btn.selector-active { background: var(--bg); font-weight: 600; }
+.selector-btn.selector-clear { border-color: #ccc; color: #999; }
+
+/* 提示文字 */
+.field-hint { font-size: 11px; color: var(--text-muted); font-weight: 400; }
 
 .layout-legend { display: flex; justify-content: center; gap: 12px; margin-top: 12px; }
 .legend-item {
