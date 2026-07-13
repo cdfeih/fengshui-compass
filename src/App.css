@@ -851,6 +851,24 @@ html, body {
   opacity: 0.6;
   margin-top: 2px;
 }
+
+/* 罗盘提示标签（九宫格内蓝色小字） */
+.cell-compass-hint {
+  font-size: 10px;
+  color: #1565C0;
+  background: #E3F2FD;
+  padding: 2px 6px;
+  border-radius: 4px;
+  margin-top: 2px;
+  line-height: 1.4;
+}
+
+.layout-compass-tip {
+  font-size: 13px;
+  color: var(--text-light);
+  margin-bottom: 8px;
+  line-height: 1.5;
+}
 .cell-warning-text { font-size: 14px; margin-top: 2px; }
 
 /* 格子内房间选择器 */

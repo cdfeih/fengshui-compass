@@ -310,7 +310,11 @@ export default function Analysis() {
   return (
     <div className="page analysis-page">
       <h2>户型风水分析</h2>
-      <p className="page-desc">填写您房子的基本信息，系统会判断空间关系问题并给出风水评分</p>
+      <p className="page-desc">
+        罗盘测的是「朝向」——大门朝南=你往外看是南方。<br />
+        下面填的是「位置」——厨房在东=厨房在房子东侧。<br />
+        对照你家户型图来填写，罗盘数据会自动带入朝向
+      </p>
 
       {measurements.doorDegree !== null && (
         <div className="auto-fill-tip">

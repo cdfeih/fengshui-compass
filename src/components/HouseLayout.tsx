@@ -1,5 +1,24 @@
-import { useState } from 'react'
+import { useState, useMemo } from 'react'
 import { useAppState } from '../context/AppContext'
+import { findDirection } from '../data/directions'
+
+// 度数 → 方位名映射（用于罗盘提示）
+function degreeToDirectionName(degree: number): string {
+  if (degree >= 157.5 && degree < 202.5) return '南'
+  if (degree >= 112.5 && degree < 157.5) return '东南'
+  if (degree >= 67.5 && degree < 112.5) return '东'
+  if (degree >= 22.5 && degree < 67.5) return '东北'
+  if (degree >= 0 && degree < 22.5 || degree >= 337.5) return '北'
+  if (degree >= 292.5 && degree < 337.5) return '西北'
+  if (degree >= 247.5 && degree < 292.5) return '西'
+  if (degree >= 202.5 && degree < 247.5) return '西南'
+  return '北'
+}
+
+// 罗盘场景 → 房间建议映射
+// "测明堂朝南" = 客厅窗户朝南 → 客厅在南面
+// "测灶台朝南" = 灶台朝南 → 厨房大概率在南面（灶台面向的方向就是灶台所在方位）
+// 注意：这只是建议，不强制自动填充，因为朝向和位置不完全等同
 
 // 房间类型定义
 const ROOM_TYPES = [
@@ -36,8 +55,46 @@ const ROOM_BLACKLIST_PER_CELL: Record<string, string[]> = {
 }
 
 export default function HouseLayout() {
-  const { houseInfo, setHouseInfo } = useAppState()
+  const { houseInfo, setHouseInfo, measurements } = useAppState()
   const [activeCell, setActiveCell] = useState<string | null>(null)
+
+  // 🔔 罗盘数据 → 九宫格提示
+  const compassHints = useMemo(() => {
+    const hints: Record<string, string[]> = {}  // dirKey → 提示文字数组
+
+    // 明堂朝向 → 客厅可能在这个方向
+    if (measurements.mingtangDegree !== null) {
+      const dirName = degreeToDirectionName(measurements.mingtangDegree)
+      if (!hints[dirName]) hints[dirName] = []
+      hints[dirName].push(`🌿 明堂朝${dirName} → 客厅/阳台窗可能在这面`)
+    }
+
+    // 灶台朝向 → 厨房可能在这个方向
+    if (measurements.stoveDegree !== null) {
+      const dirName = degreeToDirectionName(measurements.stoveDegree)
+      if (!hints[dirName]) hints[dirName] = []
+      hints[dirName].push(`🍳 灶台朝${dirName} → 厨房可能在这面`)
+    }
+
+    // 大门朝向 → 入户门在这面墙上
+    if (measurements.doorDegree !== null) {
+      const dirName = degreeToDirectionName(measurements.doorDegree)
+      if (!hints[dirName]) hints[dirName] = []
+      hints[dirName].push(`🚪 大门朝${dirName} → 门在这面墙上`)
+    }
+
+    // 门厅朝向 → 入户门在这面墙上（补充）
+    if (measurements.entranceDegree !== null) {
+      const dirName = degreeToDirectionName(measurements.entranceDegree)
+      // 门厅和门朝向是同一面墙的两侧，门朝外=门厅朝内，门厅在门对面
+      // 但实际入户门还是在门测出的那面墙上，所以门厅提示只是"进门后的方向"
+    }
+
+    return hints
+  }, [measurements.mingtangDegree, measurements.stoveDegree, measurements.doorDegree, measurements.entranceDegree])
+
+  // 有罗盘提示的格子
+  const hasAnyHints = Object.keys(compassHints).length > 0
 
   // 方位名 → 房间反向映射
   const getRoomInCell = (dirKey: string): { key: string; label: string; color: string; icon: string } | null => {
@@ -133,8 +190,18 @@ export default function HouseLayout() {
     <div className="house-layout">
       <h4>🏠 家居方位图</h4>
       <p className="layout-desc">
-        👇 点击格子选择这个方位放什么房间（{placedRooms}/4 已放置）
+        根据你的户型图，把厨房、卧室、客厅、卫生间分别放在哪个方位（{placedRooms}/4 已放置）
       </p>
+      {hasAnyHints && (
+        <p className="layout-compass-tip">
+          🧭 罗盘已测出方向数据，格子里的蓝色标签是建议位置，仅供参考
+        </p>
+      )}
+      {!hasAnyHints && placedRooms === 0 && (
+        <p className="layout-compass-tip">
+          💡 没有罗盘数据？也没关系，对照你家的户型图（买房时的平面图），看看每个房间在哪个方向
+        </p>
+      )}
 
       <div className="layout-grid">
         {GRID_POSITIONS.map(pos => {
@@ -153,7 +220,14 @@ export default function HouseLayout() {
                   {roomInCell.icon} {roomInCell.label}
                 </div>
               )}
-              {!roomInCell && !warning && (
+              {!roomInCell && !warning && compassHints[pos.dirKey] && (
+                <div className="cell-compass-hint">
+                  {compassHints[pos.dirKey].map((hint, i) => (
+                    <div key={i}>{hint}</div>
+                  ))}
+                </div>
+              )}
+              {!roomInCell && !warning && !compassHints[pos.dirKey] && (
                 <div className="cell-empty">点击放置</div>
               )}
               {warning && (
@@ -194,7 +268,7 @@ export default function HouseLayout() {
 
       {placedRooms < 4 && (
         <div className="layout-hint">
-          💡 点击空格子，选择这个方位放什么房间。也可以用下面的下拉框精确调整
+          💡 对照你家户型图（买房平面图），看看厨房、卧室、客厅、卫生间分别在哪个方向，点格子放进去
         </div>
       )}
     </div>
