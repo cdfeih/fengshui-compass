@@ -9,7 +9,7 @@ function WikiCard({ article }: WikiCardProps) {
   const [expanded, setExpanded] = useState(false)
 
   return (
-    <div className={`wiki-card ${expanded ? 'expanded' : ''}`}>
+    <div className={`wiki-card ${expanded ? 'expanded' : ''}`} id={`wiki-${article.id}`}>
       <div className="wiki-header" onClick={() => setExpanded(!expanded)}>
         <span className="wiki-icon">{article.icon}</span>
         <div className="wiki-info">
@@ -36,37 +36,26 @@ function WikiCard({ article }: WikiCardProps) {
 // 简单的 Markdown 格式化（转为HTML）
 function formatMarkdown(md: string): string {
   let html = md
-    // 标题
     .replace(/^### (.+)$/gm, '<h5>$1</h5>')
     .replace(/^## (.+)$/gm, '<h4>$1</h4>')
-    // 粗体
     .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
-    // 代码块
     .replace(/```([\s\S]*?)```/g, '<pre><code>$1</code></pre>')
-    // 行内代码
     .replace(/`([^`]+)`/g, '<code>$1</code>')
-    // 表格
     .replace(/^\|(.+)\|$/gm, (line) => {
       const cells = line.split('|').filter(c => c.trim())
-      if (cells.every(c => /^-+$/.test(c.trim()))) return '' // 分隔行
-      const isHeader = line.includes('---') === false
-      const tag = isHeader ? 'th' : 'td'
+      if (cells.every(c => /^-+$/.test(c.trim()))) return ''
+      const tag = 'td'
       return '<tr>' + cells.map(c => `<${tag}>${c.trim()}</${tag}>`).join('') + '</tr>'
     })
-    // 无序列表
     .replace(/^- (.+)$/gm, '<li>$1</li>')
-    // 有序列表
     .replace(/^\d+\. (.+)$/gm, '<li>$1</li>')
-    // 段落
     .replace(/^(?!<[a-z]|$)(.+)$/gm, '<p>$1</p>')
 
-  // 包裹表格
   html = html.replace(/(<tr>[\s\S]*?<\/tr>)/g, (match) => {
     if (match.includes('<th>')) return `<table>${match}</table>`
     return match
   })
 
-  // 包裹列表
   html = html.replace(/((?:<li>.*<\/li>\n?)+)/g, '<ul>$1</ul>')
 
   return html
@@ -74,6 +63,30 @@ function formatMarkdown(md: string): string {
 
 interface WikiProps {
   articles: WikiArticle[]
+}
+
+// 推荐百科卡片（从其他页面跳过来时的推荐）
+function RecommendedArticles({ articles }: { articles: WikiArticle[] }) {
+  if (articles.length === 0) return null
+
+  return (
+    <div className="wiki-recommended">
+      <h4>📌 为你推荐</h4>
+      <div className="recommended-list">
+        {articles.map(a => (
+          <div key={a.id} className="recommended-card" id={`wiki-${a.id}`} onClick={() => {
+            // 滚动到对应卡片
+            const el = document.getElementById(`wiki-${a.id}`)
+            if (el) el.scrollIntoView({ behavior: 'smooth' })
+          }}>
+            <span className="rec-icon">{a.icon}</span>
+            <span className="rec-title">{a.title}</span>
+            <span className="rec-summary">{a.summary}</span>
+          </div>
+        ))}
+      </div>
+    </div>
+  )
 }
 
 export default function Wiki({ articles }: WikiProps) {
@@ -100,6 +113,9 @@ export default function Wiki({ articles }: WikiProps) {
           <button className="search-clear" onClick={() => setSearch('')}>✕</button>
         )}
       </div>
+
+      {/* 入门推荐 */}
+      <RecommendedArticles articles={articles.filter(a => a.tags.includes('入门') || a.tags.includes('基础'))} />
 
       <div className="wiki-list">
         {filtered.map(article => (

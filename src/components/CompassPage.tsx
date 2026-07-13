@@ -7,21 +7,29 @@ import { interpretFengShui } from '../utils/fengshui'
 import type { SceneType, FengShuiResult } from '../utils/fengshui'
 import { isIOS } from '../utils/compass'
 
+// 场景操作指南
+const SCENE_GUIDES: Record<SceneType, string> = {
+  general: '站在房间中央，手机平放在手掌上，朝向你要测的方向',
+  door: '站在入户门内侧，手机竖起来朝门外方向，屏幕朝向你',
+  bed: '躺在床上正常位置，手机放在枕头旁边，屏幕朝上，指向床头方向',
+  stove: '站在灶台前方（你平时做饭站的位置），手机朝向灶台正面',
+  balcony: '站在阳台中央，手机朝向阳台外方向，屏幕朝向你',
+}
+
 export default function CompassPage() {
   const compass = useCompass()
   const [scene, setScene] = useState<SceneType>('general')
   const [result, setResult] = useState<FengShuiResult | null>(null)
   const [showCalibrateTip, setShowCalibrateTip] = useState(true)
   const [showPermission, setShowPermission] = useState(false)
+  const [showGuide, setShowGuide] = useState(false)
 
-  // 检查是否需要显示权限按钮
   useEffect(() => {
     if (isIOS() && compass.permissionState === 'prompt') {
       setShowPermission(true)
     }
   }, [compass.permissionState])
 
-  // 更新解读结果
   useEffect(() => {
     if (compass.heading !== null) {
       setResult(interpretFengShui(compass.degree, scene))
@@ -34,11 +42,15 @@ export default function CompassPage() {
     setShowCalibrateTip(true)
   }
 
-  // 桌面端模拟罗盘（无陀螺仪时）
+  const handleSceneChange = (newScene: SceneType) => {
+    setScene(newScene)
+    setShowGuide(true) // 切换场景时显示操作指南
+  }
+
+  // 桌面端模拟罗盘
   const [simulatedDegree, setSimulatedDegree] = useState(180)
   const isSimulated = !compass.isSupported || (!compass.heading && compass.permissionState !== 'prompt')
 
-  // 如果桌面端且无传感器，使用模拟数据
   const displayDegree = isSimulated ? simulatedDegree : compass.degree
   const displayResult = isSimulated
     ? interpretFengShui(simulatedDegree, scene)
@@ -70,12 +82,20 @@ export default function CompassPage() {
       {/* 校准提示 */}
       {showCalibrateTip && compass.permissionState !== 'prompt' && (
         <div className="calibrate-tip">
-          <span>📱 请将手机平放，画"8"字校准，远离电器和金属物体</span>
+          <span>📱 将手机平放，像画"8"字一样晃动几下来校准，远离电器和金属物体</span>
           <button className="tip-close" onClick={() => setShowCalibrateTip(false)}>✕</button>
         </div>
       )}
 
-      {/* 模拟罗盘提示（桌面端） */}
+      {/* 场景操作指南 */}
+      {showGuide && (
+        <div className="guide-tip">
+          <span>💡 {SCENE_GUIDES[scene]}</span>
+          <button className="tip-close" onClick={() => setShowGuide(false)}>✕</button>
+        </div>
+      )}
+
+      {/* 模拟罗盘提示 */}
       {isSimulated && (
         <div className="simulate-tip">
           <span>💻 桌面端演示模式 — 点击罗盘旋转或拖动下方滑块</span>
@@ -90,6 +110,8 @@ export default function CompassPage() {
           degree={displayDegree}
           sceneLabel={displayResult?.sceneLabel || '当前朝向'}
           ratingText={displayResult?.ratingText || ''}
+          rating={displayResult?.rating || 'fair'}
+          plainSummary={displayResult?.plainSummary || ''}
           isActive={compass.isCalibrated || isSimulated}
         />
       </div>
@@ -109,23 +131,69 @@ export default function CompassPage() {
       )}
 
       {/* 场景按钮 */}
-      <SceneButtons activeScene={scene} onSceneChange={setScene} />
+      <SceneButtons activeScene={scene} onSceneChange={handleSceneChange} />
 
-      {/* 解读结果 */}
+      {/* 大白话解读结果 */}
       {displayResult && (
         <div className="result-card">
           <div className={`result-rating rating-${displayResult.rating}`}>
             {displayResult.ratingText}
           </div>
-          <p className="result-summary">{displayResult.summary}</p>
+
+          {/* 大白话总结（优先展示） */}
+          <div className="result-plain">
+            <p className="result-plain-summary">{displayResult.plainSummary}</p>
+          </div>
+
+          {/* 专业术语版（折叠展示） */}
+          <div className="result-detail-toggle">
+            <button className="toggle-btn" onClick={() => {
+              const el = document.getElementById('result-detail-content')
+              if (el) el.style.display = el.style.display === 'none' ? 'block' : 'none'
+            }}>
+              查看专业解读 ▼
+            </button>
+          </div>
+          <div id="result-detail-content" style={{ display: 'none' }}>
+            <p className="result-summary">{displayResult.summary}</p>
+          </div>
+
+          {/* 大白话建议列表 */}
           <div className="result-tips">
-            <h4>💡 实用建议</h4>
+            <h4>💡 日常建议</h4>
             <ul>
-              {displayResult.tips.map((tip, i) => (
+              {displayResult.plainTips.map((tip, i) => (
                 <li key={i}>{tip}</li>
               ))}
             </ul>
           </div>
+
+          {/* 关联链接 */}
+          {displayResult.relatedIssueIds.length > 0 && (
+            <div className="result-links">
+              <h4>⚠️ 可能相关的问题</h4>
+              <div className="link-tags">
+                {displayResult.relatedIssueIds.map(id => (
+                  <a key={id} href={`#solution-${id}`} className="link-tag">
+                    查看化解方案 →
+                  </a>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {displayResult.relatedWikiIds.length > 0 && (
+            <div className="result-links">
+              <h4>📚 想了解更多？</h4>
+              <div className="link-tags">
+                {displayResult.relatedWikiIds.map(id => (
+                  <a key={id} href={`#wiki-${id}`} className="link-tag">
+                    相关百科 →
+                  </a>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
       )}
 

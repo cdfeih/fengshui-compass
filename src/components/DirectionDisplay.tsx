@@ -1,4 +1,3 @@
-
 import type { Direction } from '../data/directions'
 import { formatDegree } from '../utils/compass'
 
@@ -7,6 +6,8 @@ interface DirectionDisplayProps {
   degree: number
   sceneLabel: string
   ratingText: string
+  rating: string
+  plainSummary: string
   isActive: boolean
 }
 
@@ -14,7 +15,8 @@ export default function DirectionDisplay({
   direction,
   degree,
   sceneLabel,
-  ratingText,
+  rating,
+  plainSummary,
   isActive,
 }: DirectionDisplayProps) {
   if (!direction || !isActive) {
@@ -27,30 +29,44 @@ export default function DirectionDisplay({
   }
 
   const ratingColors: Record<string, string> = {
-    '大吉': '#C41E3A',
-    '吉': '#D4A84B',
-    '一般': '#8B6914',
-    '需注意': '#666',
+    excellent: '#C41E3A',
+    good: '#D4A84B',
+    fair: '#8B6914',
+    poor: '#666',
   }
 
-  const ratingColor = Object.keys(ratingColors).find(k => ratingText.includes(k))
-    ? ratingColors[Object.keys(ratingColors).find(k => ratingText.includes(k))!]
-    : '#8B6914'
+  const ratingPlain: Record<string, string> = {
+    excellent: '非常好',
+    good: '还不错',
+    fair: '一般般',
+    poor: '不太好',
+  }
+
+  const color = ratingColors[rating] || '#8B6914'
 
   return (
     <div className="direction-display active">
-      <div className="direction-value" style={{ color: ratingColor }}>
-        {direction.fullName}
+      {/* 大白话主展示区 */}
+      <div className="direction-plain">
+        <div className="direction-value" style={{ color }}>
+          {direction.fullName}
+        </div>
+        <div className="direction-plain-label" style={{ color }}>
+          {ratingPlain[rating]}！
+        </div>
       </div>
-      <div className="direction-name">{direction.name}山</div>
-      <div className="direction-degree">{formatDegree(degree)}</div>
-      <div className="direction-meta">
-        <span className="meta-tag">{direction.element}行</span>
-        <span className="meta-tag">{direction.trigramFull}</span>
+
+      {/* 术语信息（次要位置，小字） */}
+      <div className="direction-detail">
+        <span className="detail-tag">{direction.name}山 · {direction.trigramFull} · {direction.element}行</span>
+        <span className="direction-degree">{formatDegree(degree)}</span>
       </div>
-      <div className="direction-rating" style={{ color: ratingColor }}>
-        {ratingText}
+
+      {/* 大白话一句话总结 */}
+      <div className="direction-plain-summary" style={{ color }}>
+        {plainSummary}
       </div>
+
       <div className="direction-scene">{sceneLabel}</div>
     </div>
   )
