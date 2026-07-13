@@ -4,6 +4,7 @@ import type { SceneType } from '../utils/fengshui'
 interface SceneButtonsProps {
   activeScene: SceneType
   onSceneChange: (scene: SceneType) => void
+  lockedScenes?: Set<SceneType>
 }
 
 const SCENES: { type: SceneType; label: string; icon: string; guide: string }[] = [
@@ -29,50 +30,51 @@ const SCENES: { type: SceneType; label: string; icon: string; guide: string }[] 
   },
 ]
 
-export default function SceneButtons({ activeScene, onSceneChange }: SceneButtonsProps) {
+export default function SceneButtons({ activeScene, onSceneChange, lockedScenes = new Set() }: SceneButtonsProps) {
   const [showTooltip, setShowTooltip] = useState<string | null>(null)
 
   return (
     <div className="scene-buttons">
-      {SCENES.map(s => (
-        <div key={s.type} className="scene-btn-wrapper">
-          <button
-            className={`scene-btn ${activeScene === s.type ? 'active' : ''}`}
-            onClick={() => {
-              onSceneChange(s.type)
-              setShowTooltip(null) // 选了就关 tooltip
-            }}
-            onMouseEnter={() => setShowTooltip(s.type)}
-            onMouseLeave={() => setShowTooltip(null)}
-            onTouchStart={() => {
-              // 手机端：点一下显示 tooltip，再点才切换场景
-              if (showTooltip === s.type) {
-                // 第二次点击 → 选场景 + 关 tooltip
+      {SCENES.map(s => {
+        const isLocked = lockedScenes.has(s.type)
+        return (
+          <div key={s.type} className="scene-btn-wrapper">
+            <button
+              className={`scene-btn ${activeScene === s.type ? 'active' : ''} ${isLocked ? 'locked' : ''}`}
+              onClick={() => {
                 onSceneChange(s.type)
                 setShowTooltip(null)
-              } else {
-                // 第一次点击 → 只显示 tooltip
-                setShowTooltip(s.type)
-              }
-            }}
-          >
-            <span className="scene-icon">{s.icon}</span>
-            <span className="scene-label">{s.label}</span>
-            <span className="scene-info-icon">ⓘ</span>
-          </button>
+              }}
+              onMouseEnter={() => setShowTooltip(s.type)}
+              onMouseLeave={() => setShowTooltip(null)}
+              onTouchStart={() => {
+                if (showTooltip === s.type) {
+                  onSceneChange(s.type)
+                  setShowTooltip(null)
+                } else {
+                  setShowTooltip(s.type)
+                }
+              }}
+            >
+              <span className="scene-icon">{s.icon}</span>
+              <span className="scene-label">{s.label}</span>
+              {isLocked && <span className="scene-locked-badge">✅</span>}
+              {!isLocked && <span className="scene-info-icon">ⓘ</span>}
+            </button>
 
-          {/* 操作说明 tooltip */}
-          {showTooltip === s.type && (
-            <div className="scene-tooltip">
-              <div className="tooltip-arrow" />
-              <div className="tooltip-content">
-                <strong>{s.label}怎么测：</strong>
-                <p>{s.guide}</p>
+            {/* 操作说明 tooltip */}
+            {showTooltip === s.type && (
+              <div className="scene-tooltip">
+                <div className="tooltip-arrow" />
+                <div className="tooltip-content">
+                  <strong>{s.label}怎么测：</strong>
+                  <p>{s.guide}</p>
+                </div>
               </div>
-            </div>
-          )}
-        </div>
-      ))}
+            )}
+          </div>
+        )
+      })}
     </div>
   )
 }
