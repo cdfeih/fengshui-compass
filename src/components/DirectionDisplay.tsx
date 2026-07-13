@@ -5,7 +5,6 @@ interface DirectionDisplayProps {
   direction: Direction | null
   degree: number
   sceneLabel: string
-  ratingText: string
   rating: string
   plainSummary: string
   isActive: boolean

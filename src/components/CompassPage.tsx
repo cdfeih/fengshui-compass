@@ -3,6 +3,7 @@ import CompassFace from './Compass'
 import DirectionDisplay from './DirectionDisplay'
 import SceneButtons from './SceneButtons'
 import { useCompass } from '../hooks/useCompass'
+import { useAppState } from '../context/AppContext'
 import { interpretFengShui } from '../utils/fengshui'
 import type { SceneType, FengShuiResult } from '../utils/fengshui'
 import { isIOS } from '../utils/compass'
@@ -18,11 +19,13 @@ const SCENE_GUIDES: Record<SceneType, string> = {
 
 export default function CompassPage() {
   const compass = useCompass()
+  const { setMeasurement, setActiveTab } = useAppState()
   const [scene, setScene] = useState<SceneType>('general')
   const [result, setResult] = useState<FengShuiResult | null>(null)
   const [showCalibrateTip, setShowCalibrateTip] = useState(true)
   const [showPermission, setShowPermission] = useState(false)
-  const [showGuide, setShowGuide] = useState(false)
+  const [showGuide, setShowGuide] = useState(true) // 首次进来默认显示指南
+  const [savedScenes, setSavedScenes] = useState<Set<SceneType>>(new Set()) // 已测过的场景
 
   useEffect(() => {
     if (isIOS() && compass.permissionState === 'prompt') {
@@ -33,6 +36,9 @@ export default function CompassPage() {
   useEffect(() => {
     if (compass.heading !== null) {
       setResult(interpretFengShui(compass.degree, scene))
+      // 🔥 关键：将测量结果保存到全局状态，让分析页能读取
+      setMeasurement(scene, compass.degree)
+      setSavedScenes(prev => new Set(prev).add(scene))
     }
   }, [compass.degree, compass.heading, scene])
 
@@ -44,7 +50,7 @@ export default function CompassPage() {
 
   const handleSceneChange = (newScene: SceneType) => {
     setScene(newScene)
-    setShowGuide(true) // 切换场景时显示操作指南
+    setShowGuide(true)
   }
 
   // 桌面端模拟罗盘
@@ -59,8 +65,14 @@ export default function CompassPage() {
   useEffect(() => {
     if (isSimulated) {
       setResult(interpretFengShui(simulatedDegree, scene))
+      // 🔥 模拟模式也保存到全局
+      setMeasurement(scene, simulatedDegree)
+      setSavedScenes(prev => new Set(prev).add(scene))
     }
   }, [simulatedDegree, scene, isSimulated])
+
+  // 已测量过的场景提示
+  const hasMeasurements = savedScenes.size > 0
 
   return (
     <div className="page compass-page">
@@ -98,7 +110,17 @@ export default function CompassPage() {
       {/* 模拟罗盘提示 */}
       {isSimulated && (
         <div className="simulate-tip">
-          <span>💻 桌面端演示模式 — 点击罗盘旋转或拖动下方滑块</span>
+          <span>💻 桌面端演示模式 — 拖动下方滑块选择方向</span>
+        </div>
+      )}
+
+      {/* 🔥 已测量过的场景提示——联动关键入口 */}
+      {hasMeasurements && savedScenes.has('door') && (
+        <div className="measurement-saved-tip">
+          ✅ 大门朝向已测量！点击下方按钮去「分析」页查看完整风水评分
+          <button className="btn-primary btn-small" onClick={() => setActiveTab('analysis')}>
+            前往分析 →
+          </button>
         </div>
       )}
 
@@ -109,7 +131,6 @@ export default function CompassPage() {
           direction={displayResult?.direction || null}
           degree={displayDegree}
           sceneLabel={displayResult?.sceneLabel || '当前朝向'}
-          ratingText={displayResult?.ratingText || ''}
           rating={displayResult?.rating || 'fair'}
           plainSummary={displayResult?.plainSummary || ''}
           isActive={compass.isCalibrated || isSimulated}
@@ -168,30 +189,29 @@ export default function CompassPage() {
             </ul>
           </div>
 
-          {/* 关联链接 */}
+          {/* 🔥 关联链接——用按钮切换Tab，不用锚点 */}
           {displayResult.relatedIssueIds.length > 0 && (
             <div className="result-links">
               <h4>⚠️ 可能相关的问题</h4>
-              <div className="link-tags">
-                {displayResult.relatedIssueIds.map(id => (
-                  <a key={id} href={`#solution-${id}`} className="link-tag">
-                    查看化解方案 →
-                  </a>
-                ))}
-              </div>
+              <button className="btn-secondary btn-small" onClick={() => setActiveTab('solution')}>
+                前往化解页面查看 →
+              </button>
             </div>
           )}
 
           {displayResult.relatedWikiIds.length > 0 && (
             <div className="result-links">
               <h4>📚 想了解更多？</h4>
-              <div className="link-tags">
-                {displayResult.relatedWikiIds.map(id => (
-                  <a key={id} href={`#wiki-${id}`} className="link-tag">
-                    相关百科 →
-                  </a>
-                ))}
-              </div>
+              <button className="btn-secondary btn-small" onClick={() => setActiveTab('wiki')}>
+                前往风水百科 →
+              </button>
+            </div>
+          )}
+
+          {/* 🔥 测量完提醒去分析页 */}
+          {!savedScenes.has('door') && scene !== 'door' && (
+            <div className="result-next-step">
+              下一步建议：选「测大门」测量入户门朝向，再去「分析」页看完整评分
             </div>
           )}
         </div>

@@ -620,14 +620,33 @@ html, body {
 }
 
 /* 自动带入提示 */
-.auto-fill-tip {
+.auto-fill-tip, .measurement-saved-tip {
   background: #E8F5E9;
   border: 1px solid #81C784;
   border-radius: 8px;
-  padding: 8px 12px;
+  padding: 10px 12px;
   font-size: 13px;
   color: #2E7D32;
   margin-bottom: 12px;
+  line-height: 1.6;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.measurement-saved-tip .btn-small { margin-left: auto; flex-shrink: 0; }
+
+/* 下一步提示 */
+.result-next-step {
+  margin-top: 12px;
+  padding: 10px 12px;
+  background: #FFF8E7;
+  border: 1px solid var(--primary-light);
+  border-radius: 8px;
+  font-size: 13px;
+  color: var(--primary-dark);
+  line-height: 1.6;
 }
 
 /* 大白话总结 */
