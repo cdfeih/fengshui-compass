@@ -1,7 +1,7 @@
 import { findDirection } from '../data/directions'
 import type { Direction } from '../data/directions'
 
-export type SceneType = 'door' | 'bed' | 'stove' | 'balcony' | 'general'
+export type SceneType = 'door' | 'bed' | 'stove' | 'mingtang' | 'entrance' | 'general'
 
 export interface FengShuiResult {
   direction: Direction
@@ -30,7 +30,8 @@ const SCENE_LABELS: Record<SceneType, string> = {
   door: '大门朝向',
   bed: '床头朝向',
   stove: '灶台朝向',
-  balcony: '阳台朝向',
+  mingtang: '明堂朝向',
+  entrance: '门厅朝向',
   general: '当前朝向',
 }
 
@@ -61,11 +62,20 @@ function getSceneRating(dir: Direction, scene: SceneType): FengShuiResult['ratin
     return 'fair'
   }
 
-  if (scene === 'balcony') {
+  // 明堂（阳台/客厅窗）——纳气口，东/南/东南最佳
+  if (scene === 'mingtang') {
     if (['卯', '午', '巽'].includes(name)) return 'excellent'
     if (['甲', '乙', '丙', '丁', '巳', '辰'].includes(name)) return 'good'
     if (['子', '癸', '丑', '艮', '寅', '未', '坤'].includes(name)) return 'fair'
     if (['酉', '庚', '辛', '申', '戌', '乾', '亥', '壬'].includes(name)) return 'fair'
+    return 'fair'
+  }
+
+  // 门厅/玄关——气流入口，东南/南/东最佳
+  if (scene === 'entrance') {
+    if (['巽', '午', '卯'].includes(name)) return 'excellent'
+    if (['辰', '巳', '丙', '丁', '甲', '乙', '子', '癸'].includes(name)) return 'good'
+    if (['坤', '未', '申', '庚', '酉', '辛', '艮', '丑', '寅', '壬', '戌', '亥'].includes(name)) return 'fair'
     return 'fair'
   }
 
@@ -94,7 +104,8 @@ function getSceneAdvice(dir: Direction, scene: SceneType): string {
     case 'door': return dir.doorAdvice
     case 'bed': return dir.bedAdvice
     case 'stove': return dir.stoveAdvice
-    case 'balcony': return dir.balconyAdvice
+    case 'mingtang': return dir.mingtangAdvice
+    case 'entrance': return dir.entranceAdvice
     default: return dir.description
   }
 }
@@ -105,7 +116,8 @@ function getScenePlainAdvice(dir: Direction, scene: SceneType): string {
     case 'door': return dir.doorPlain
     case 'bed': return dir.bedPlain
     case 'stove': return dir.stovePlain
-    case 'balcony': return dir.balconyPlain
+    case 'mingtang': return dir.mingtangPlain
+    case 'entrance': return dir.entrancePlain
     default: return dir.plainSummary
   }
 }
@@ -113,19 +125,14 @@ function getScenePlainAdvice(dir: Direction, scene: SceneType): string {
 // 根据方位和场景关联百科文章
 function getRelatedWikiIds(dir: Direction, scene: SceneType): string[] {
   const ids: string[] = []
-  // 所有场景都可链接八卦方位
   ids.push('eight_trigrams')
-  // 大门关联大门攻略
   if (scene === 'door') ids.push('door_fengshui')
-  // 床头关联卧室指南
   if (scene === 'bed') ids.push('bedroom_fengshui')
-  // 灶台关联厨房风水
   if (scene === 'stove') ids.push('kitchen_fengshui')
-  // 东南方位关联财位
+  if (scene === 'mingtang') ids.push('wealth_position')
+  if (scene === 'entrance') ids.push('door_fengshui')
   if (dir.direction === '东南') ids.push('wealth_position')
-  // 五行相关
   ids.push('five_elements')
-  // 二十四山相关
   ids.push('twenty_four_mountains')
   return ids
 }
@@ -133,18 +140,14 @@ function getRelatedWikiIds(dir: Direction, scene: SceneType): string[] {
 // 根据方位和场景关联化解问题
 function getRelatedIssueIds(dir: Direction, scene: SceneType): string[] {
   const ids: string[] = []
-  // 灶台朝北
   if (scene === 'stove' && dir.direction === '北') ids.push('stove_facing_north')
-  // 灶台朝西北（火烧天门）
   if (scene === 'stove' && dir.direction === '西北') ids.push('kitchen_northwest')
-  // 厨房在北方
   if (scene === 'stove' && dir.direction === '北') ids.push('kitchen_north')
-  // 床头对门（门冲床）
   if (scene === 'bed') ids.push('bed_facing_door')
-  // 床头靠窗
   if (scene === 'bed') ids.push('bed_under_window')
-  // 横梁压床
   if (scene === 'bed') ids.push('beam_over_bed')
+  // 门厅穿堂煞
+  if (scene === 'entrance' && dir.direction === '南') ids.push('door_facing_door')
   return ids
 }
 
@@ -174,15 +177,20 @@ export function interpretFengShui(degree: number, scene: SceneType): FengShuiRes
       tips = ['灶台忌对门、对窗', '灶台和水槽不要正对', '保持灶台干净整洁', '厨房保持良好通风']
       plainTips = ['灶台不要正对着厨房门或窗户', '灶台和水龙头不要面对面', '灶台保持干净整洁', '厨房要通风好']
       break
-    case 'balcony':
-      summary = `您的阳台朝向**${direction.fullName}（${direction.name}山）**，五行属${direction.element}。${getSceneAdvice(direction, scene)}`
-      tips = ['阳台保持整洁开阔，忌堆杂物', '放阔叶绿植可聚气纳财', '阳台栏杆不宜过高（影响采光）', '晾晒衣物及时收，不要长期悬挂']
-      plainTips = ['阳台保持干净整洁，不要堆杂物', '放几盆大叶子的植物会让家里运气更好', '晾好的衣服及时收起来', '栏杆太高会影响采光']
+    case 'mingtang':
+      summary = `您的明堂（客厅/阳台窗）朝向**${direction.fullName}（${direction.name}山）**，五行属${direction.element}。${getSceneAdvice(direction, scene)}`
+      tips = ['明堂保持整洁开阔，忌堆杂物', '放阔叶绿植可聚气纳财', '窗户保持明亮通透', '晾晒衣物及时收']
+      plainTips = ['客厅和阳台保持干净整洁，不要堆杂物', '放几盆大叶子的植物会让家里运气更好', '窗户保持明亮通透，采光很重要', '晾好的衣服及时收起来']
+      break
+    case 'entrance':
+      summary = `您的门厅（玄关）朝向**${direction.fullName}（${direction.name}山）**，五行属${direction.element}，${direction.trigramFull}卦位。${getSceneAdvice(direction, scene)}`
+      tips = ['门厅宜设玄关缓冲气流', '避免大门直通阳台（穿堂煞）', '门厅保持明亮整洁', '忌厕所对门厅']
+      plainTips = ['门口最好有个玄关或屏风缓冲一下', '大门直通阳台的话一定要挡一下，这是漏财格局', '门厅保持干净明亮很重要', '厕所门不要正对着门厅']
       break
     default:
       summary = `您当前面向**${direction.fullName}（${direction.name}山）**，五行属${direction.element}，${direction.trigramFull}卦位。${direction.description}`
       tips = ['使用"场景选择"按钮获取针对性的风水建议', '测量时远离电器和金属物品', '手机伸出窗外测量更准确']
-      plainTips = ['点击下方的"测大门""测床"等按钮，可以获取更有用的建议', '测量时远离电器和金属物品，结果更准确', '手机伸出窗外测量更准确']
+      plainTips = ['点击下方的"测大门""测明堂"等按钮，可以获取更有用的建议', '测量时远离电器和金属物品，结果更准确', '手机伸出窗外测量更准确']
   }
 
   const plainSummary = `${RATING_PLAIN[rating]}！${direction.plainSummary}。${getScenePlainAdvice(direction, scene)}`

@@ -1,10 +1,11 @@
 import { createContext, useContext, useState, type ReactNode } from 'react'
 
 export interface CompassMeasurement {
-  doorDegree: number | null    // 大门朝向度数
-  bedDegree: number | null     // 床头朝向度数
-  stoveDegree: number | null   // 灶台朝向度数
-  balconyDegree: number | null // 阳台朝向度数
+  doorDegree: number | null      // 大门朝向度数
+  bedDegree: number | null       // 床头朝向度数
+  stoveDegree: number | null     // 灶台朝向度数
+  mingtangDegree: number | null  // 明堂（客厅窗/阳台）朝向度数
+  entranceDegree: number | null  // 门厅（玄关）朝向度数
 }
 
 export interface HouseInfo {
@@ -12,22 +13,20 @@ export interface HouseInfo {
   totalFloors: number
   direction: string
   layout: string
-  balcony: string
-  kitchen: string
-  masterBedroom: string
-  bathroom: string       // 新增：卫生间位置
-  doorPattern: string   // 新增：入户门格局
+  balcony: string           // 阳台格局（单阳台/双阳台/无阳台）
+  kitchen: string           // 厨房位置方位
+  masterBedroom: string     // 主卧位置方位
+  bathroom: string          // 卫生间位置方位
+  livingRoom: string        // 客厅位置方位（新增）
+  doorPattern: string       // 入户门格局
 }
 
 export interface AppState {
   measurements: CompassMeasurement
   houseInfo: HouseInfo
   activeTab: string
-  // 罗盘测量结果保存
   setMeasurement: (scene: string, degree: number) => void
-  // 分析表单数据
   setHouseInfo: (info: Partial<HouseInfo>) => void
-  // Tab 切换（支持从其他组件跳转）
   setActiveTab: (tab: string) => void
 }
 
@@ -40,6 +39,7 @@ const DEFAULT_HOUSE_INFO: HouseInfo = {
   kitchen: '北',
   masterBedroom: '东南',
   bathroom: '西南',
+  livingRoom: '南',
   doorPattern: '正常',
 }
 
@@ -50,7 +50,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
     doorDegree: null,
     bedDegree: null,
     stoveDegree: null,
-    balconyDegree: null,
+    mingtangDegree: null,
+    entranceDegree: null,
   })
   const [houseInfo, setHouseInfoState] = useState<HouseInfo>(DEFAULT_HOUSE_INFO)
   const [activeTab, setActiveTab] = useState('compass')

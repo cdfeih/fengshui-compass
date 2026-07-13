@@ -3,6 +3,7 @@ interface HouseInfo {
   kitchen: string
   masterBedroom: string
   bathroom: string
+  livingRoom: string
   direction: string
   layout: string
   balcony: string
@@ -30,17 +31,19 @@ const DIR_TO_POS: Record<string, { x: number; y: number }> = {
   '东': { x: 1, y: 2 },
 }
 
-// 格子颜色
+// 房间颜色和标签
 const ROOM_COLORS: Record<string, string> = {
-  kitchen: '#FF6B35',     // 厨房 - 橙色
-  masterBedroom: '#6C5CE7', // 主卧 - 紫色
-  bathroom: '#A8A8A8',    // 卫生间 - 灰色
+  kitchen: '#FF6B35',        // 厨房 - 橙色
+  masterBedroom: '#6C5CE7',  // 主卧 - 紫色
+  bathroom: '#A8A8A8',       // 卫生间 - 灰色
+  livingRoom: '#2E7D32',     // 客厅 - 绿色
 }
 
 const ROOM_LABELS: Record<string, string> = {
   kitchen: '厨房',
   masterBedroom: '主卧',
   bathroom: '卫生间',
+  livingRoom: '客厅',
 }
 
 export default function HouseLayout({ info }: { info: HouseInfo }) {
@@ -49,15 +52,24 @@ export default function HouseLayout({ info }: { info: HouseInfo }) {
   if (DIR_TO_POS[info.kitchen]) rooms.push({ key: 'kitchen', pos: DIR_TO_POS[info.kitchen] })
   if (DIR_TO_POS[info.masterBedroom]) rooms.push({ key: 'masterBedroom', pos: DIR_TO_POS[info.masterBedroom] })
   if (DIR_TO_POS[info.bathroom]) rooms.push({ key: 'bathroom', pos: DIR_TO_POS[info.bathroom] })
+  if (DIR_TO_POS[info.livingRoom]) rooms.push({ key: 'livingRoom', pos: DIR_TO_POS[info.livingRoom] })
 
-  // 判断每个格子是否有问题
+  // 判断每个格子是否有风水问题
   const getCellWarning = (label: string): string | null => {
-    const hasKitchen = rooms.find(r => r.key === 'kitchen' && DIR_TO_POS[label]?.x === r.pos.x && DIR_TO_POS[label]?.y === r.pos.y)
-    const hasBathroom = rooms.find(r => r.key === 'bathroom' && DIR_TO_POS[label]?.x === r.pos.x && DIR_TO_POS[label]?.y === r.pos.y)
+    const kitchenHere = rooms.find(r => r.key === 'kitchen' && DIR_TO_POS[label]?.x === r.pos.x && DIR_TO_POS[label]?.y === r.pos.y)
+    const bathroomHere = rooms.find(r => r.key === 'bathroom' && DIR_TO_POS[label]?.x === r.pos.x && DIR_TO_POS[label]?.y === r.pos.y)
 
-    if (hasKitchen && (label === '西北' || label === '正西')) return '厨房在此位不太好'
-    if (hasKitchen && label === '正北') return '厨房在此位需调和'
-    if (hasBathroom && (label === '西南' || label === '西北' || label === '中宫')) return '卫生间在此位需注意'
+    // 厨房问题
+    if (kitchenHere && label === '西北') return '🔥 火烧天门'
+    if (kitchenHere && label === '正西') return '厨房在此不佳'
+    if (kitchenHere && label === '正北') return '厨房水火冲'
+    if (kitchenHere && label === '中宫') return '🔥 火烧中宫'
+
+    // 卫生间问题
+    if (bathroomHere && label === '中宫') return '🚽 中宫受污'
+    if (bathroomHere && label === '西北') return '🚽 压乾位'
+    if (bathroomHere && label === '西南') return '🚽 压坤位'
+
     return null
   }
 
@@ -79,7 +91,7 @@ export default function HouseLayout({ info }: { info: HouseInfo }) {
                 </div>
               )}
               {warning && (
-                <div className="cell-warning-text">⚠️</div>
+                <div className="cell-warning-text">{warning}</div>
               )}
             </div>
           )
@@ -88,6 +100,7 @@ export default function HouseLayout({ info }: { info: HouseInfo }) {
       <div className="layout-legend">
         <span className="legend-item" style={{ backgroundColor: ROOM_COLORS.kitchen }}>厨房</span>
         <span className="legend-item" style={{ backgroundColor: ROOM_COLORS.masterBedroom }}>主卧</span>
+        <span className="legend-item" style={{ backgroundColor: ROOM_COLORS.livingRoom }}>客厅</span>
         <span className="legend-item" style={{ backgroundColor: ROOM_COLORS.bathroom }}>卫生间</span>
       </div>
     </div>

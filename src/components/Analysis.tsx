@@ -11,6 +11,7 @@ interface HouseInfo {
   kitchen: string
   masterBedroom: string
   bathroom: string
+  livingRoom: string
   doorPattern: string
 }
 
@@ -20,6 +21,7 @@ const BALCONY_OPTIONS = ['单阳台', '双阳台', '无阳台']
 const KITCHEN_OPTIONS = ['东', '东南', '南', '西南', '西', '西北', '北', '东北', '中间']
 const BEDROOM_OPTIONS = ['东', '东南', '南', '西南', '西', '西北', '北', '东北']
 const BATHROOM_OPTIONS = ['东', '东南', '南', '西南', '西', '西北', '北', '东北', '中间']
+const LIVING_ROOM_OPTIONS = ['东', '东南', '南', '西南', '西', '西北', '北', '东北', '中间']
 const DOOR_PATTERN_OPTIONS = ['正常', '对电梯', '对楼梯', '对邻居门', '对阳台（穿堂）', '对厨房', '对厕所']
 
 interface AnalysisResult {
@@ -37,10 +39,9 @@ export default function Analysis() {
   const { houseInfo, setHouseInfo, measurements, setActiveTab } = useAppState()
   const [showResult, setShowResult] = useState(false)
 
-  // 从 Context 同步数据，如果罗盘测了大门朝向，自动带入
+  // 从 Context 同步数据
   const info: HouseInfo = useMemo(() => {
     const base = { ...houseInfo }
-    // 如果罗盘测了大门，自动推断朝向
     if (measurements.doorDegree !== null) {
       const degree = measurements.doorDegree
       if (degree >= 157.5 && degree < 202.5) base.direction = '正南'
@@ -67,9 +68,7 @@ export default function Analysis() {
     const plainRecommendations: string[] = []
 
     // 1. 朝向评分 (权重2.0)
-    let dirScore = 5
-    let dirComment = ''
-    let dirPlain = ''
+    let dirScore = 5, dirComment = '', dirPlain = ''
     if (info.direction === '正南') {
       dirScore = 5; dirComment = '朝南最佳，采光充足冬暖夏凉'; dirPlain = '大门朝南，冬天暖和夏天不会太热，采光最好'
     } else if (info.direction === '东南') {
@@ -115,7 +114,7 @@ export default function Analysis() {
     }
     items.push({ name: '户型格局', score: layoutScore, maxScore: 5, weight: 1.5, comment: layoutComment, plainComment: layoutPlain })
 
-    // 3. 厨房位置 (权重2.5 - 最重要的硬伤因素)
+    // 3. 厨房位置 (权重2.5)
     let kitchenScore = 5, kitchenComment = '', kitchenPlain = ''
     const kitchenPos = info.kitchen
     if (['东', '东南'].includes(kitchenPos)) {
@@ -173,7 +172,29 @@ export default function Analysis() {
     }
     items.push({ name: '主卧位置', score: bedroomScore, maxScore: 5, weight: 1.5, comment: bedroomComment, plainComment: bedroomPlain })
 
-    // 6. 入户门格局 (权重1.0)
+    // 6. 客厅位置 (权重1.5 —— 新增)
+    let livingRoomScore = 5, livingRoomComment = '', livingRoomPlain = ''
+    const livingPos = info.livingRoom
+    if (livingPos === '中间') {
+      livingRoomScore = 5; livingRoomComment = '客厅居中聚气最佳'; livingRoomPlain = '客厅在房子正中间最好，是家里的核心，聚气纳财'
+    } else if (['南', '东南'].includes(livingPos)) {
+      livingRoomScore = 5; livingRoomComment = '客厅在南/东南采光充足纳气好'; livingRoomPlain = '客厅在南边或东南边非常好，采光好又纳气'
+    } else if (['东', '西南'].includes(livingPos)) {
+      livingRoomScore = 4; livingRoomComment = '客厅位置较佳'; livingRoomPlain = '客厅位置不错，采光和通风都可以'
+    } else if (livingPos === '北') {
+      livingRoomScore = 2; livingRoomComment = '客厅在北采光不足需补阳气'; livingRoomPlain = '客厅在北边不太好，采光差，需要多加灯和暖色装饰'
+      recommendations.push('北面客厅需加强灯光和暖色装饰'); plainRecommendations.push('客厅在北边的话多加灯和暖色装修')
+    } else if (livingPos === '西北') {
+      livingRoomScore = 3; livingRoomComment = '客厅在西北气场偏刚'; livingRoomPlain = '客厅在西北方向，气场比较硬朗，适合事业型家庭'
+    } else if (livingPos === '西') {
+      livingRoomScore = 3; livingRoomComment = '客厅在西有西晒需调和'; livingRoomPlain = '客厅在西边，下午有西晒，需要做好遮阳'
+      plainWarnings.push('客厅在西边的话下午很晒，窗帘要厚')
+    } else if (livingPos === '东北') {
+      livingRoomScore = 3; livingRoomComment = '客厅在东北偏稳'; livingRoomPlain = '客厅在东北方向，气场比较稳，适合安静的家庭'
+    }
+    items.push({ name: '客厅位置', score: livingRoomScore, maxScore: 5, weight: 1.5, comment: livingRoomComment, plainComment: livingRoomPlain })
+
+    // 7. 入户门格局 (权重1.0)
     let doorScore = 5, doorComment = '', doorPlain = ''
     switch (info.doorPattern) {
       case '正常':
@@ -206,7 +227,7 @@ export default function Analysis() {
     }
     items.push({ name: '入户门格局', score: doorScore, maxScore: 5, weight: 1.0, comment: doorComment, plainComment: doorPlain })
 
-    // 7. 楼层评分 (权重0.8)
+    // 8. 楼层评分 (权重0.8)
     let floorScore = 5, floorComment = '', floorPlain = ''
     const ratio = info.floor / info.totalFloors
     if (ratio <= 0.15) {
@@ -225,7 +246,7 @@ export default function Analysis() {
     }
     items.push({ name: '楼层高度', score: floorScore, maxScore: 5, weight: 0.8, comment: floorComment, plainComment: floorPlain })
 
-    // 8. 阳台评分 (权重0.8)
+    // 9. 阳台格局 (权重0.8)
     let balconyScore = 5, balconyComment = '', balconyPlain = ''
     switch (info.balcony) {
       case '双阳台':
@@ -262,19 +283,45 @@ export default function Analysis() {
 
   const scoreColor = analysis.totalScore >= 85 ? '#C41E3A' : analysis.totalScore >= 70 ? '#D4A84B' : analysis.totalScore >= 55 ? '#8B6914' : '#666'
 
+  // 空间关系检测（户型图判断）
+  const spatialWarnings = useMemo(() => {
+    const sw: string[] = []
+    // 厨房在西北 → 火烧天门
+    if (info.kitchen === '西北') sw.push('厨房在西北：火烧天门，严重影响男主人')
+    // 卫生间在中间 → 中宫受污
+    if (info.bathroom === '中间') sw.push('卫生间居中：中宫受污，影响全家健康')
+    // 厨房在中间 → 火烧中宫
+    if (info.kitchen === '中间') sw.push('厨房居中：火烧中宫，影响全家运势')
+    // 卫生间和厨房同位 → 水火相冲
+    if (info.kitchen === info.bathroom && info.kitchen !== '中间') sw.push('厨房和卫生间在同一方位：水火相冲')
+    // 大门对阳台 → 穿堂煞
+    if (info.doorPattern === '对阳台（穿堂）') sw.push('大门直通阳台：穿堂煞，财来财去')
+    return sw
+  }, [info])
+
   return (
     <div className="page analysis-page">
       <h2>户型风水分析</h2>
-      <p className="page-desc">输入您房子的基本信息，获取风水评分和改善建议</p>
+      <p className="page-desc">填写您房子的基本信息，系统会判断空间关系问题并给出风水评分</p>
 
       {measurements.doorDegree !== null && (
         <div className="auto-fill-tip">
-          ✅ 已从罗盘自动带入大门朝向数据
+          ✅ 已从罗盘自动带入大门朝向数据（{measurements.doorDegree.toFixed(0)}°）
         </div>
       )}
 
       {/* 九宫格方位图 */}
       <HouseLayout info={info} />
+
+      {/* 空间关系警告 */}
+      {spatialWarnings.length > 0 && (
+        <div className="spatial-warnings">
+          <h4>⚠️ 户型空间关系问题</h4>
+          <ul>
+            {spatialWarnings.map((w, i) => <li key={i}>{w}</li>)}
+          </ul>
+        </div>
+      )}
 
       <div className="form-group">
         <label>楼层</label>
@@ -308,7 +355,7 @@ export default function Analysis() {
       </div>
 
       <div className="form-group">
-        <label>阳台</label>
+        <label>阳台格局</label>
         <select value={info.balcony} onChange={e => updateField('balcony', e.target.value)}>
           {BALCONY_OPTIONS.map(b => <option key={b} value={b}>{b}</option>)}
         </select>
@@ -324,7 +371,7 @@ export default function Analysis() {
       <div className="form-group">
         <label>卫生间位置</label>
         <select value={info.bathroom} onChange={e => updateField('bathroom', e.target.value)}>
-          {BATHROOM_OPTIONS.map(b => <option key={b} value={b}>{b}面</option>)}
+          {BATHROOM_OPTIONS.map(b => <option key={b} value={b}>{b === '中间' ? '中间' : `${b}面`}</option>)}
         </select>
       </div>
 
@@ -332,6 +379,13 @@ export default function Analysis() {
         <label>主卧位置</label>
         <select value={info.masterBedroom} onChange={e => updateField('masterBedroom', e.target.value)}>
           {BEDROOM_OPTIONS.map(b => <option key={b} value={b}>{b}角</option>)}
+        </select>
+      </div>
+
+      <div className="form-group">
+        <label>客厅位置</label>
+        <select value={info.livingRoom} onChange={e => updateField('livingRoom', e.target.value)}>
+          {LIVING_ROOM_OPTIONS.map(l => <option key={l} value={l}>{l === '中间' ? '居中' : `${l}面`}</option>)}
         </select>
       </div>
 
@@ -353,7 +407,6 @@ export default function Analysis() {
             {analysis.plainSummary}
           </p>
 
-          {/* 各维度评分 */}
           <div className="score-items">
             {analysis.items.map((item, i) => (
               <div key={i} className="score-item">
@@ -373,7 +426,6 @@ export default function Analysis() {
             ))}
           </div>
 
-          {/* 警告 */}
           {analysis.plainWarnings.length > 0 && (
             <div className="analysis-warnings">
               <h4>⚠️ 需要注意的问题</h4>
@@ -383,7 +435,6 @@ export default function Analysis() {
             </div>
           )}
 
-          {/* 建议 */}
           {analysis.plainRecommendations.length > 0 && (
             <div className="analysis-recommendations">
               <h4>💡 改善建议</h4>
@@ -393,7 +444,6 @@ export default function Analysis() {
             </div>
           )}
 
-          {/* 跳转化解页 */}
           {analysis.plainWarnings.length > 0 && (
             <div className="result-links">
               <h4>🔧 查看具体化解方法</h4>
@@ -403,7 +453,6 @@ export default function Analysis() {
             </div>
           )}
 
-          {/* 跳转百科 */}
           <div className="result-links">
             <h4>📚 想深入了解？</h4>
             <button className="btn-secondary btn-small" onClick={() => setActiveTab('wiki')}>

@@ -14,27 +14,30 @@ const SCENE_GUIDES: Record<SceneType, string> = {
   door: '站在入户门内侧（屋里那侧），手机竖起来朝门外方向，屏幕朝向你自己',
   bed: '躺在床上正常位置，手机放在枕头旁屏幕朝上，指向床头方向',
   stove: '站在灶台前方（你平时做饭站的位置），手机朝向灶台正面',
-  balcony: '站在阳台中央，手机朝向阳台外方向（面朝外面），屏幕朝向你自己',
+  mingtang: '站在客厅中央或阳台上，面朝窗外方向，手机指向外面',
+  entrance: '站在入户门内侧，面朝屋内方向（你进门后面对的方向），手机指向室内',
 }
 
-// 建议测量顺序
-const RECOMMENDED_ORDER: SceneType[] = ['door', 'bed', 'stove', 'balcony']
+// 建议测量顺序（7项，5项罗盘 + 2项户型配置）
+const RECOMMENDED_ORDER: SceneType[] = ['door', 'entrance', 'bed', 'stove', 'mingtang']
 
 // 下一步建议文案
 const NEXT_STEP: Record<SceneType, string> = {
-  door: '接下来测「床头朝向」',
+  door: '接下来测「门厅朝向」',
+  entrance: '接下来测「床头朝向」',
   bed: '接下来测「灶台朝向」',
-  stove: '接下来测「阳台朝向」',
-  balcony: '所有关键项目都测完了！',
+  stove: '接下来测「明堂朝向」',
+  mingtang: '所有罗盘测量都完成了！',
   general: '建议先选「测大门」开始测量',
 }
 
 // 场景名称映射
 const SCENE_NAMES: Record<SceneType, string> = {
   door: '大门',
+  entrance: '门厅',
   bed: '床向',
   stove: '灶台',
-  balcony: '阳台',
+  mingtang: '明堂',
   general: '朝向',
 }
 
@@ -48,25 +51,25 @@ export default function CompassPage() {
   const [showPermission, setShowPermission] = useState(false)
   const [showGuide, setShowGuide] = useState(true)
 
-  // 桌面端模拟罗盘（必须在 handleLockResult 之前声明）
+  // 桌面端模拟罗盘
   const [simulatedDegree, setSimulatedDegree] = useState(180)
   const isSimulated = !compass.isSupported || (!compass.heading && compass.permissionState !== 'prompt')
 
-  // 🔒 锁定机制：已确认锁定的场景 + 锁定时的度数
+  // 🔒 锁定机制
   const [lockedResults, setLockedResults] = useState<Partial<Record<SceneType, number>>>({})
 
   // 当前场景是否已锁定
   const isCurrentLocked = lockedResults[scene] !== undefined
-  const allKeyScenesMeasured = (['door', 'bed', 'stove', 'balcony'] as SceneType[]).every(
+  const allKeyScenesMeasured = (['door', 'entrance', 'bed', 'stove', 'mingtang'] as SceneType[]).every(
     s => lockedResults[s] !== undefined
   )
 
-  // 显示用度数：已锁定用锁定值，否则实时更新
+  // 显示用度数
   const displayDegree: number = isCurrentLocked
     ? (lockedResults[scene] ?? 0)
     : (isSimulated ? simulatedDegree : compass.degree)
 
-  // 实时解读（每次 render 重新计算）
+  // 实时解读
   const displayResult = interpretFengShui(displayDegree, scene)
 
   // 下一个未测量的关键场景
@@ -145,10 +148,10 @@ export default function CompassPage() {
         </div>
       )}
 
-      {/* 🎉 全部测完提示——关键入口 */}
+      {/* 🎉 全部测完提示 */}
       {allKeyScenesMeasured && (
         <div className="measurement-saved-tip">
-          🎉 所有关键项目都测完了！点击去「分析」页查看完整风水评分
+          🎉 所有罗盘测量都完成了！去「分析」页填写户型位置，获取完整风水评分
           <button className="btn-primary btn-small" onClick={() => setActiveTab('analysis')}>
             前往分析 →
           </button>
@@ -162,7 +165,7 @@ export default function CompassPage() {
         </div>
       )}
 
-      {/* 🔒 锁定/解锁按钮——核心交互 */}
+      {/* 🔒 锁定/解锁按钮 */}
       <div className="lock-actions">
         {!isCurrentLocked ? (
           <button className="btn-primary btn-lock" onClick={handleLockResult}>
@@ -188,7 +191,7 @@ export default function CompassPage() {
         />
       </div>
 
-      {/* 桌面端滑块（仅未锁定时可用） */}
+      {/* 桌面端滑块 */}
       {isSimulated && !isCurrentLocked && (
         <div className="simulate-slider">
           <input type="range" min={0} max={359} value={simulatedDegree}
@@ -197,7 +200,7 @@ export default function CompassPage() {
         </div>
       )}
 
-      {/* 场景按钮——传入已锁定的场景列表 */}
+      {/* 场景按钮 */}
       <SceneButtons
         activeScene={scene}
         onSceneChange={handleSceneChange}
@@ -210,12 +213,10 @@ export default function CompassPage() {
           {displayResult.ratingText}
         </div>
 
-        {/* 大白话总结 */}
         <div className="result-plain">
           <p className="result-plain-summary">{displayResult.plainSummary}</p>
         </div>
 
-        {/* 专业术语版折叠 */}
         <div className="result-detail-toggle">
           <button className="toggle-btn" onClick={() => {
             const el = document.getElementById('result-detail-content')
@@ -228,7 +229,6 @@ export default function CompassPage() {
           <p className="result-summary">{displayResult.summary}</p>
         </div>
 
-        {/* 大白话建议 */}
         <div className="result-tips">
           <h4>💡 日常建议</h4>
           <ul>
@@ -238,7 +238,6 @@ export default function CompassPage() {
           </ul>
         </div>
 
-        {/* 关联链接 */}
         {displayResult.relatedIssueIds.length > 0 && (
           <div className="result-links">
             <h4>⚠️ 可能相关的问题</h4>
@@ -268,7 +267,7 @@ export default function CompassPage() {
               </>
             ) : (
               <>
-                所有关键项目都测完了！
+                所有罗盘测量都完成了！
                 <button className="btn-primary btn-small" onClick={() => setActiveTab('analysis')}>
                   前往分析 →
                 </button>

@@ -17,6 +17,10 @@ const SCENES: { type: SceneType; label: string; icon: string; guide: string }[] 
     guide: '站在入户门内侧（屋里那侧），手机竖起来朝门外方向，屏幕朝向你自己',
   },
   {
+    type: 'entrance', label: '测门厅', icon: '🏠',
+    guide: '站在入户门内侧，面朝屋内方向（进门后面对的方向），手机指向室内',
+  },
+  {
     type: 'bed', label: '测床向', icon: '🛏️',
     guide: '躺在床上正常位置，手机放在枕头旁屏幕朝上，指向床头方向',
   },
@@ -25,8 +29,8 @@ const SCENES: { type: SceneType; label: string; icon: string; guide: string }[] 
     guide: '站在灶台前方（你平时做饭站的位置），手机朝向灶台正面',
   },
   {
-    type: 'balcony', label: '测阳台', icon: '🌿',
-    guide: '站在阳台中央，手机朝向阳台外方向（面朝外面），屏幕朝向你自己',
+    type: 'mingtang', label: '测明堂', icon: '🌿',
+    guide: '站在客厅中央或阳台上，面朝窗外方向，手机指向外面',
   },
 ]
 
@@ -62,7 +66,6 @@ export default function SceneButtons({ activeScene, onSceneChange, lockedScenes 
               {!isLocked && <span className="scene-info-icon">ⓘ</span>}
             </button>
 
-            {/* 操作说明 tooltip */}
             {showTooltip === s.type && (
               <div className="scene-tooltip">
                 <div className="tooltip-arrow" />
